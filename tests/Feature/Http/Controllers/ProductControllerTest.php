@@ -62,14 +62,17 @@ describe('store', function () {
     it('creates a valid product', function () {
         $user = User::factory()->create();
 
-        $this->actingAs($user)
+        $response = $this->actingAs($user)
             ->post(route('products.store'), [
                 'name' => 'Desk lamp',
                 'description' => 'A compact reading lamp.',
                 'status' => ProductStatus::Active->value,
             ])
-            ->assertSessionHasNoErrors()
-            ->assertRedirect(route('products.index'));
+            ->assertSessionHasNoErrors();
+
+        $product = Product::query()->where('name', 'Desk lamp')->firstOrFail();
+
+        $response->assertRedirect(route('products.edit', $product));
 
         $this->assertDatabaseHas('products', [
             'name' => 'Desk lamp',

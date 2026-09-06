@@ -4,6 +4,9 @@ use App\Models\Inventory;
 use App\Models\Sku;
 use App\Models\User;
 use App\Models\Warehouse;
+use Illuminate\Database\QueryException;
+use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\DB;
 
 describe('store', function () {
     it('creates inventory for a warehouse', function () {
@@ -73,19 +76,23 @@ describe('store', function () {
 });
 
 describe('update and destroy', function () {
-    it('updates inventory while allowing its current SKU', function () {
+    it('updates only the inventory quantity', function () {
         $user = User::factory()->create();
         $warehouse = Warehouse::factory()->create();
         $inventory = Inventory::factory()->for($warehouse)->create();
+        $originalSkuId = $inventory->sku_id;
+        $otherSku = Sku::factory()->create();
 
         $this->actingAs($user)
             ->put(route('warehouses.inventories.update', [$warehouse, $inventory]), [
-                'sku_id' => $inventory->sku_id,
+                'sku_id' => $otherSku->id,
                 'quantity' => 75,
             ])
             ->assertSessionHasNoErrors();
 
-        expect($inventory->refresh()->quantity)->toBe(75);
+        expect($inventory->refresh())
+            ->sku_id->toBe($originalSkuId)
+            ->quantity->toBe(75);
     });
 
     it('does not expose inventory through another warehouse', function () {
@@ -111,5 +118,34 @@ describe('update and destroy', function () {
             ->assertRedirect(route('warehouses.edit', $warehouse));
 
         $this->assertModelMissing($inventory);
+    });
+});
+
+describe('database constraints', function () {
+    it('prevents duplicate warehouse and SKU pairs without a form request', function () {
+        $warehouse = Warehouse::factory()->create();
+        $sku = Sku::factory()->create();
+        Inventory::factory()->for($warehouse)->for($sku)->create();
+
+        expect(fn () => Inventory::query()->create([
+            'warehouse_id' => $warehouse->id,
+            'sku_id' => $sku->id,
+            'quantity' => 5,
+        ]))->toThrow(UniqueConstraintViolationException::class);
+    });
+
+    it('prevents negative quantities without a form request', function () {
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            $this->markTestSkipped('SQLite does not enforce unsigned integer columns.');
+        }
+
+        $warehouse = Warehouse::factory()->create();
+        $sku = Sku::factory()->create();
+
+        expect(fn () => Inventory::query()->create([
+            'warehouse_id' => $warehouse->id,
+            'sku_id' => $sku->id,
+            'quantity' => -1,
+        ]))->toThrow(QueryException::class);
     });
 });

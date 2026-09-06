@@ -65,7 +65,7 @@ function isSkuUnavailable(skuId: number): boolean {
                 </DialogHeader>
 
                 <div class="grid gap-4 py-6">
-                    <div class="grid gap-2">
+                    <div v-if="!isEditing" class="grid gap-2">
                         <Label for="inventory-sku">SKU</Label>
                         <Select
                             name="sku_id"
@@ -87,6 +87,16 @@ function isSkuUnavailable(skuId: number): boolean {
                             </SelectContent>
                         </Select>
                         <InputError :message="errors.sku_id" />
+                    </div>
+
+                    <div v-else class="grid gap-2">
+                        <Label>SKU</Label>
+                        <div class="bg-muted rounded-md border px-3 py-2 text-sm">
+                            <span class="font-mono">{{ inventory?.sku.code }}</span>
+                            <span class="text-muted-foreground">
+                                — {{ inventory?.sku.product.name }} / {{ inventory?.sku.name }}
+                            </span>
+                        </div>
                     </div>
 
                     <div class="grid gap-2">
