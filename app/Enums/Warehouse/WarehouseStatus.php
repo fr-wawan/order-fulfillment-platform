@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Sku;
+namespace App\Enums\Warehouse;
 
-enum SkuStatus: string
+enum WarehouseStatus: string
 {
     case Active = 'active';
     case Inactive = 'inactive';

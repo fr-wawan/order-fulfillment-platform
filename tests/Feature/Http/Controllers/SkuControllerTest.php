@@ -1,9 +1,9 @@
 <?php
 
+use App\Enums\Sku\SkuStatus;
 use App\Models\Product;
 use App\Models\Sku;
 use App\Models\User;
-use App\Sku\SkuStatus;
 
 describe('store', function () {
     it('redirects guests to login', function () {

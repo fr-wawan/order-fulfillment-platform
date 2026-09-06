@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\Sku\SkuStatus;
 use App\Models\Product;
 use App\Models\Sku;
-use App\Sku\SkuStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

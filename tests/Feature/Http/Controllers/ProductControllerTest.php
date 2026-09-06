@@ -1,9 +1,9 @@
 <?php
 
+use App\Enums\Product\ProductStatus;
 use App\Models\Product;
 use App\Models\Sku;
 use App\Models\User;
-use App\Product\ProductStatus;
 use Inertia\Testing\AssertableInertia as Assert;
 
 describe('index', function () {

@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Sku;
 
+use App\Enums\Sku\SkuStatus;
 use App\Models\Sku;
-use App\Sku\SkuStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;

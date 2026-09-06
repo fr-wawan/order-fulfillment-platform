@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Enums\Product\ProductStatus;
 use App\Models\Product;
-use App\Product\ProductStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

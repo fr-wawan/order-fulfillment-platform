@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use App\Sku\SkuStatus;
+use App\Enums\Sku\SkuStatus;
 use Database\Factories\SkuFactory;
 use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Guarded(['id'])]
 class Sku extends Model
@@ -25,5 +26,10 @@ class Sku extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function inventories(): HasMany
+    {
+        return $this->hasMany(Inventory::class);
     }
 }
