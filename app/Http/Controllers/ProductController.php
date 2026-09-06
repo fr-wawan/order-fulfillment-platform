@@ -65,16 +65,4 @@ class ProductController extends Controller
 
         return to_route('products.index');
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product): RedirectResponse
-    {
-        $product->delete();
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Product deleted successfully.']);
-
-        return to_route('products.index');
-    }
 }

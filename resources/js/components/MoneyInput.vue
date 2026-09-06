@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { Input } from "@/components/ui/input";
+import { formatMoney } from "@/lib/formatters";
 
 defineOptions({ inheritAttrs: false });
 
@@ -10,11 +11,13 @@ const props = withDefaults(
         defaultValue?: string | number;
         modelValue?: string | number;
         locale?: string;
+        currency?: string;
     }>(),
     {
         defaultValue: "",
         modelValue: undefined,
         locale: "en-US",
+        currency: "USD",
     },
 );
 
@@ -30,7 +33,7 @@ function normalize(value: string | number | undefined): string {
 
 const rawValue = ref(normalize(props.modelValue ?? props.defaultValue));
 const formattedValue = computed(() =>
-    rawValue.value === "" ? "" : new Intl.NumberFormat(props.locale).format(Number(rawValue.value)),
+    rawValue.value === "" ? "" : formatMoney(Number(rawValue.value), props.locale, props.currency),
 );
 
 watch(

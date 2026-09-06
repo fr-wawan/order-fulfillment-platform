@@ -1,22 +1,11 @@
 <script setup lang="ts">
-import { Form, router } from "@inertiajs/vue3";
-import { Pencil, Plus, Trash2 } from "@lucide/vue";
-import { destroy } from "@/actions/App/Http/Controllers/SkuController";
+import { router } from "@inertiajs/vue3";
+import { Pencil, Plus } from "@lucide/vue";
 import PaginatedTable from "@/components/PaginatedTable.vue";
 import SkuFormDialog from "@/components/products/SkuFormDialog.vue";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
 import {
     Table,
     TableBody,
@@ -26,6 +15,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { formatMoney } from "@/lib/formatters";
 import { edit } from "@/routes/products";
 import type { PaginatedData, Sku } from "@/types";
 
@@ -34,10 +24,6 @@ const props = defineProps<{
     skus: PaginatedData<Sku> | null;
     disabled?: boolean;
 }>();
-
-function formatPrice(price: number): string {
-    return new Intl.NumberFormat().format(price);
-}
 
 function visitPage(page: number): void {
     if (!props.productId || page === props.skus?.current_page) {
@@ -108,7 +94,7 @@ function visitPage(page: number): void {
                     <TableCell class="px-4 font-mono">{{ sku.code }}</TableCell>
                     <TableCell class="px-4">{{ sku.name }}</TableCell>
                     <TableCell class="px-4 tabular-nums">
-                        {{ formatPrice(sku.price) }}
+                        {{ formatMoney(sku.price) }}
                     </TableCell>
                     <TableCell class="px-4">
                         <Badge :variant="sku.status === 'active' ? 'default' : 'secondary'">
@@ -126,52 +112,6 @@ function visitPage(page: number): void {
                                     <Pencil />
                                 </Button>
                             </SkuFormDialog>
-
-                            <Dialog>
-                                <DialogTrigger as-child>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        :aria-label="`Delete ${sku.code}`"
-                                    >
-                                        <Trash2 />
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <Form
-                                        v-bind="
-                                            destroy.form({
-                                                product: productId,
-                                                sku: sku.id,
-                                            })
-                                        "
-                                        v-slot="{ processing }"
-                                        :options="{ preserveScroll: true }"
-                                    >
-                                        <DialogHeader>
-                                            <DialogTitle>Delete SKU?</DialogTitle>
-                                            <DialogDescription>
-                                                This will permanently delete “{{ sku.code }}”. This
-                                                action cannot be undone.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <DialogFooter class="mt-6 gap-2">
-                                            <DialogClose as-child>
-                                                <Button type="button" variant="outline">
-                                                    Cancel
-                                                </Button>
-                                            </DialogClose>
-                                            <Button
-                                                type="submit"
-                                                variant="destructive"
-                                                :disabled="processing"
-                                            >
-                                                {{ processing ? "Deleting…" : "Delete SKU" }}
-                                            </Button>
-                                        </DialogFooter>
-                                    </Form>
-                                </DialogContent>
-                            </Dialog>
                         </div>
                     </TableCell>
                 </template>

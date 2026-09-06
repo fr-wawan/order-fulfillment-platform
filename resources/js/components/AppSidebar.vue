@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from "@inertiajs/vue3";
-import { Boxes, LayoutGrid, Warehouse } from "@lucide/vue";
+import { Boxes, LayoutGrid, ShoppingCart, Warehouse } from "@lucide/vue";
 import AppLogo from "@/components/AppLogo.vue";
 import NavMain from "@/components/NavMain.vue";
 import NavUser from "@/components/NavUser.vue";
@@ -14,6 +14,7 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { dashboard } from "@/routes";
+import { index as ordersIndex } from "@/routes/orders";
 import { index as productsIndex } from "@/routes/products";
 import { index as warehousesIndex } from "@/routes/warehouses";
 import type { NavItem } from "@/types";
@@ -33,6 +34,11 @@ const mainNavItems: NavItem[] = [
         title: "Warehouses",
         href: warehousesIndex(),
         icon: Warehouse,
+    },
+    {
+        title: "Orders",
+        href: ordersIndex(),
+        icon: ShoppingCart,
     },
 ];
 </script>

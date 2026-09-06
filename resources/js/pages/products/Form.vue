@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { Form, Head, Link } from "@inertiajs/vue3";
 import { computed } from "vue";
-import {
-    store,
-    update,
-} from "@/actions/App/Http/Controllers/ProductController";
+import { store, update } from "@/actions/App/Http/Controllers/ProductController";
 import Heading from "@/components/Heading.vue";
 import InputError from "@/components/InputError.vue";
 import SkuTable from "@/components/products/SkuTable.vue";
@@ -28,17 +25,11 @@ const { product } = defineProps<{
 }>();
 
 const isEditing = computed(() => product !== null);
-const title = computed(() =>
-    isEditing.value ? "Edit product" : "Create product",
-);
+const title = computed(() => (isEditing.value ? "Edit product" : "Create product"));
 const description = computed(() =>
-    isEditing.value
-        ? "Update the product details below."
-        : "Add a new product to your catalog.",
+    isEditing.value ? "Update the product details below." : "Add a new product to your catalog.",
 );
-const formAction = computed(() =>
-    product ? update.form(product.id) : store.form(),
-);
+const formAction = computed(() => (product ? update.form(product.id) : store.form()));
 
 defineOptions({
     layout: {
@@ -55,10 +46,10 @@ defineOptions({
 <template>
     <Head :title="title" />
 
-    <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 md:p-6">
+    <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
         <Heading :title="title" :description="description" />
 
-        <Card>
+        <Card class="w-full max-w-3xl">
             <CardContent class="pt-6">
                 <Form
                     v-bind="formAction"
@@ -93,19 +84,13 @@ defineOptions({
 
                     <div class="grid gap-2">
                         <Label for="status">Status</Label>
-                        <Select
-                            name="status"
-                            :default-value="product?.status ?? 'active'"
-                            required
-                        >
+                        <Select name="status" :default-value="product?.status ?? 'active'" required>
                             <SelectTrigger id="status" class="w-full">
                                 <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive"
-                                    >Inactive</SelectItem
-                                >
+                                <SelectItem value="inactive">Inactive</SelectItem>
                             </SelectContent>
                         </Select>
                         <InputError :message="errors.status" />
@@ -123,10 +108,6 @@ defineOptions({
             </CardContent>
         </Card>
 
-        <SkuTable
-            :product-id="product?.id"
-            :skus="skus"
-            :disabled="!isEditing"
-        />
+        <SkuTable :product-id="product?.id" :skus="skus" :disabled="!isEditing" />
     </div>
 </template>

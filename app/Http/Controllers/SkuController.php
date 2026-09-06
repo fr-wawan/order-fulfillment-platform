@@ -34,16 +34,4 @@ class SkuController extends Controller
 
         return to_route('products.edit', $product->id);
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product, Sku $sku): RedirectResponse
-    {
-        $sku->delete();
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Sku deleted successfully.']);
-
-        return to_route('products.edit', $product->id);
-    }
 }

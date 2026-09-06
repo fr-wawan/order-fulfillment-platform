@@ -45,10 +45,10 @@ defineOptions({
 <template>
     <Head :title="title" />
 
-    <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 md:p-6">
+    <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
         <Heading :title="title" :description="description" />
 
-        <Card>
+        <Card class="w-full max-w-3xl">
             <CardContent class="pt-6">
                 <Form
                     v-bind="formAction"

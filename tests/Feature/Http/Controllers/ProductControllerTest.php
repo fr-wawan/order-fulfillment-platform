@@ -130,14 +130,14 @@ describe('update', function () {
 });
 
 describe('destroy', function () {
-    it('deletes the product', function () {
+    it('rejects product deletion and keeps the product', function () {
         $user = User::factory()->create();
         $product = Product::factory()->create();
 
         $this->actingAs($user)
-            ->delete(route('products.destroy', $product))
-            ->assertRedirect(route('products.index'));
+            ->delete("/products/{$product->id}")
+            ->assertMethodNotAllowed();
 
-        $this->assertModelMissing($product);
+        $this->assertModelExists($product);
     });
 });

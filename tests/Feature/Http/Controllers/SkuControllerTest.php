@@ -108,15 +108,15 @@ describe('update', function () {
 });
 
 describe('destroy', function () {
-    it('deletes a SKU that belongs to the product', function () {
+    it('rejects SKU deletion and keeps the SKU', function () {
         $user = User::factory()->create();
         $product = Product::factory()->create();
         $sku = Sku::factory()->for($product)->create();
 
         $this->actingAs($user)
-            ->delete(route('products.skus.destroy', [$product, $sku]))
-            ->assertRedirect(route('products.edit', $product));
+            ->delete("/products/{$product->id}/skus/{$sku->id}")
+            ->assertMethodNotAllowed();
 
-        $this->assertModelMissing($sku);
+        $this->assertModelExists($sku);
     });
 });
