@@ -75,7 +75,7 @@ describe('store', function () {
     });
 });
 
-describe('update and destroy', function () {
+describe('update', function () {
     it('updates only the inventory quantity', function () {
         $user = User::factory()->create();
         $warehouse = Warehouse::factory()->create();
@@ -102,22 +102,12 @@ describe('update and destroy', function () {
         $inventory = Inventory::factory()->for($otherWarehouse)->create();
 
         $this->actingAs($user)
-            ->delete(route('warehouses.inventories.destroy', [$warehouse, $inventory]))
+            ->put(route('warehouses.inventories.update', [$warehouse, $inventory]), [
+                'quantity' => 25,
+            ])
             ->assertNotFound();
 
         $this->assertModelExists($inventory);
-    });
-
-    it('deletes inventory from its warehouse', function () {
-        $user = User::factory()->create();
-        $warehouse = Warehouse::factory()->create();
-        $inventory = Inventory::factory()->for($warehouse)->create();
-
-        $this->actingAs($user)
-            ->delete(route('warehouses.inventories.destroy', [$warehouse, $inventory]))
-            ->assertRedirect(route('warehouses.edit', $warehouse));
-
-        $this->assertModelMissing($inventory);
     });
 });
 

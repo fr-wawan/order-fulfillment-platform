@@ -22,8 +22,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('products.skus', SkuController::class)
             ->only('store', 'update');
         Route::resource('warehouses.inventories', InventoryController::class)
-            ->only('store', 'update', 'destroy');
+            ->only('store', 'update');
     });
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Inventory\UpdateInventoryQuantityAction;
 use App\Http\Requests\Inventory\StoreInventoryRequest;
 use App\Http\Requests\Inventory\UpdateInventoryRequest;
 use App\Models\Inventory;
@@ -24,19 +25,11 @@ class InventoryController extends Controller
         UpdateInventoryRequest $request,
         Warehouse $warehouse,
         Inventory $inventory,
+        UpdateInventoryQuantityAction $action,
     ): RedirectResponse {
-        $inventory->update($request->validated());
+        $action->handle($inventory, $request->integer('quantity'));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Inventory updated successfully.']);
-
-        return to_route('warehouses.edit', $warehouse);
-    }
-
-    public function destroy(Warehouse $warehouse, Inventory $inventory): RedirectResponse
-    {
-        $inventory->delete();
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Inventory deleted successfully.']);
 
         return to_route('warehouses.edit', $warehouse);
     }

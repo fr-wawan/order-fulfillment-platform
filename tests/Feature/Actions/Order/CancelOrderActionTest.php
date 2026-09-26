@@ -34,16 +34,20 @@ it('releases reserved inventory when cancelling an order', function () {
     expect($reservation->refresh()->status)->toBe(InventoryReservationStatus::Released);
 });
 
-it('returns an already cancelled order without changing inventory', function () {
+it('keeps cancellation idempotent when cancelling the same order twice', function () {
     $sku = Sku::factory()->create(['price' => 1_250]);
     $inventory = Inventory::factory()->for($sku)->create(['quantity' => 10]);
     $order = app(CreateOrderAction::class)->handle([
         'items' => [['sku_id' => $sku->id, 'quantity' => 3]],
     ]);
-    $order->update(['status' => OrderStatus::Cancelled]);
+    $reservation = $order->items()->sole()->reservations()->sole();
+
+    app(CancelOrderAction::class)->handle($order);
 
     $cancelledOrder = app(CancelOrderAction::class)->handle($order);
 
     expect($cancelledOrder->is($order))->toBeTrue();
-    expect($inventory->refresh()->reserved_quantity)->toBe(3);
+    expect($cancelledOrder->status)->toBe(OrderStatus::Cancelled);
+    expect($inventory->refresh()->reserved_quantity)->toBe(0);
+    expect($reservation->refresh()->status)->toBe(InventoryReservationStatus::Released);
 });

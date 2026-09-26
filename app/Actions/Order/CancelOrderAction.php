@@ -18,7 +18,9 @@ class CancelOrderAction
                 ->lockForUpdate()
                 ->findOrFail($order->id);
 
-            if ($order->status === OrderStatus::Cancelled) return $order;
+            if ($order->status === OrderStatus::Cancelled) {
+                return $order;
+            }
 
             $orderItemIds = $order->items()
                 ->pluck('id');
@@ -26,6 +28,7 @@ class CancelOrderAction
             $reservations = InventoryReservation::query()
                 ->whereIn('order_item_id', $orderItemIds)
                 ->lockForUpdate()
+                ->orderBy('id')
                 ->get();
 
             $inventoryIds = $reservations
@@ -42,7 +45,9 @@ class CancelOrderAction
                 ->keyBy('id');
 
             foreach ($reservations as $reservation) {
-                if ($reservation->status !== InventoryReservationStatus::Reserved) continue;
+                if ($reservation->status !== InventoryReservationStatus::Reserved) {
+                    continue;
+                }
 
                 $inventory = $inventories[$reservation->inventory_id];
 
@@ -52,12 +57,12 @@ class CancelOrderAction
                 );
 
                 $reservation->update([
-                    'status' => InventoryReservationStatus::Released
+                    'status' => InventoryReservationStatus::Released,
                 ]);
             }
 
             $order->update([
-                'status' => OrderStatus::Cancelled
+                'status' => OrderStatus::Cancelled,
             ]);
 
             return $order;

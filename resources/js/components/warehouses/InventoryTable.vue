@@ -1,20 +1,8 @@
 <script setup lang="ts">
-import { Form } from '@inertiajs/vue3';
-import { Pencil, Plus, Trash2 } from '@lucide/vue';
-import { destroy } from '@/actions/App/Http/Controllers/InventoryController';
+import { Pencil, Plus } from '@lucide/vue';
 import PaginatedTable from '@/components/PaginatedTable.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
 import {
     Table,
     TableBody,
@@ -110,7 +98,7 @@ function visitPage(page: number): void {
                     <TableHead class="px-4">Product</TableHead>
                     <TableHead class="px-4 text-right">Quantity</TableHead>
                     <TableHead class="px-4 text-right">Reserved</TableHead>
-                    <TableHead class="w-28 px-4 text-right">Actions</TableHead>
+                    <TableHead class="w-20 px-4 text-right">Actions</TableHead>
                 </template>
                 <template #empty>No inventory has been added yet.</template>
                 <template #row="{ row: inventory }">
@@ -130,78 +118,20 @@ function visitPage(page: number): void {
                         {{ formatNumber(inventory.reserved_quantity) }}
                     </TableCell>
                     <TableCell class="px-4">
-                        <div class="flex justify-end gap-1">
-                            <InventoryFormDialog
-                                :warehouse-id="warehouseId"
-                                :inventory="inventory"
-                                :sku-options="skuOptions"
-                                :assigned-sku-ids="assignedSkuIds"
+                        <InventoryFormDialog
+                            :warehouse-id="warehouseId"
+                            :inventory="inventory"
+                            :sku-options="skuOptions"
+                            :assigned-sku-ids="assignedSkuIds"
+                        >
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                :aria-label="`Edit ${inventory.sku.code} inventory`"
                             >
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    :aria-label="`Edit ${inventory.sku.code} inventory`"
-                                >
-                                    <Pencil />
-                                </Button>
-                            </InventoryFormDialog>
-                            <Dialog>
-                                <DialogTrigger as-child>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        :aria-label="`Delete ${inventory.sku.code} inventory`"
-                                    >
-                                        <Trash2 />
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <Form
-                                        v-bind="
-                                            destroy.form({
-                                                warehouse: warehouseId,
-                                                inventory: inventory.id,
-                                            })
-                                        "
-                                        v-slot="{ processing }"
-                                        :options="{ preserveScroll: true }"
-                                    >
-                                        <DialogHeader>
-                                            <DialogTitle
-                                                >Delete inventory?</DialogTitle
-                                            >
-                                            <DialogDescription>
-                                                This removes
-                                                {{ inventory.sku.code }} from
-                                                this warehouse. This action
-                                                cannot be undone.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <DialogFooter class="mt-6 gap-2">
-                                            <DialogClose as-child>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                >
-                                                    Cancel
-                                                </Button>
-                                            </DialogClose>
-                                            <Button
-                                                type="submit"
-                                                variant="destructive"
-                                                :disabled="processing"
-                                            >
-                                                {{
-                                                    processing
-                                                        ? 'Deleting…'
-                                                        : 'Delete inventory'
-                                                }}
-                                            </Button>
-                                        </DialogFooter>
-                                    </Form>
-                                </DialogContent>
-                            </Dialog>
-                        </div>
+                                <Pencil />
+                            </Button>
+                        </InventoryFormDialog>
                     </TableCell>
                 </template>
             </PaginatedTable>
