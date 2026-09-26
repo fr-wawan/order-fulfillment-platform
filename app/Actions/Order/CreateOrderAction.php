@@ -3,20 +3,24 @@
 namespace App\Actions\Order;
 
 use App\Enums\Order\OrderStatus;
+use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\Sku;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class CreateOrderAction
 {
     public function handle(array $data): Order
     {
         return DB::transaction(function () use ($data) {
-            $items = $this->normalizeItems($data['items']);
+            $items = $this->normalizeItems($data['items'])
+                ->sortBy('sku_id')
+                ->values();
 
-            $skuIds = $items->map(fn (array $item) => $item['sku_id']);
+            $skuIds = $items->map(fn(array $item) => $item['sku_id']);
 
             $skus = Sku::whereIn('id', $skuIds)
                 ->lockForUpdate()
@@ -38,11 +42,11 @@ class CreateOrderAction
     private function normalizeItems(array $items): Collection
     {
         return collect($items)
-            ->groupBy(fn (array $item) => (int) $item['sku_id'])
-            ->map(fn ($items, $skuId) => [
+            ->groupBy(fn(array $item) => (int) $item['sku_id'])
+            ->map(fn($items, $skuId) => [
                 'sku_id' => (int) $skuId,
                 'quantity' => $items->sum(
-                    fn (array $item) => (int) $item['quantity']
+                    fn(array $item) => (int) $item['quantity']
                 ),
             ])
             ->values();
@@ -50,7 +54,7 @@ class CreateOrderAction
 
     private function generateOrderNumber(): string
     {
-        return strtoupper('ORD-'.Str::random(8));
+        return strtoupper('ORD-' . Str::random(8));
     }
 
     private function calculateTotalAmount(Collection $items, Collection $skus): int
@@ -66,11 +70,34 @@ class CreateOrderAction
     {
         $items->each(function (array $item) use ($order, $skus) {
             $sku = $skus[$item['sku_id']];
+            $quantity = $item['quantity'];
 
-            $order->items()->create([
+            $inventory = Inventory::query()
+                ->where('sku_id', $sku->id)
+                ->whereRaw('quantity >= reserved_quantity + ?', [$quantity])
+                ->lockForUpdate()
+                ->orderBy('id')
+                ->first();
+
+            if (! $inventory) {
+                throw ValidationException::withMessages([
+                    'sku_id' => 'No inventory has the required stocks',
+                ]);
+            }
+
+            $inventory->update([
+                'reserved_quantity' => $inventory->reserved_quantity + $quantity,
+            ]);
+
+            $orderItem = $order->items()->create([
                 'sku_id' => $sku->id,
-                'quantity' => $item['quantity'],
+                'quantity' => $quantity,
                 'unit_price' => $sku->price,
+            ]);
+
+            $inventory->reservations()->create([
+                'order_item_id' => $orderItem->id,
+                'quantity' => $quantity,
             ]);
         });
     }

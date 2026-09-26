@@ -1,7 +1,7 @@
 export type Order = {
     id: number;
     order_number: string;
-    status: "pending" | "cancelled";
+    status: 'pending' | 'cancelled';
     total_amount: number;
     items_count: number;
     created_at: string;
@@ -12,11 +12,17 @@ export type OrderSkuOption = {
     code: string;
     name: string;
     price: number;
-    status: "active" | "inactive";
+    status: 'active' | 'inactive';
     product: {
         id: number;
         name: string;
     };
+};
+
+export type OrderFormItem = {
+    clientId: number;
+    sku_id: string;
+    quantity: number;
 };
 
 export type OrderItemSnapshot = {
@@ -27,6 +33,6 @@ export type OrderItemSnapshot = {
     sku: OrderSkuOption;
 };
 
-export type OrderDetail = Omit<Order, "items_count"> & {
+export type OrderDetail = Omit<Order, 'items_count'> & {
     items: OrderItemSnapshot[];
 };

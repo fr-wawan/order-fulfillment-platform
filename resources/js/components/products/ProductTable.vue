@@ -1,28 +1,23 @@
 <script setup lang="ts">
-import { Link, router } from "@inertiajs/vue3";
-import { Pencil } from "@lucide/vue";
-import { edit } from "@/actions/App/Http/Controllers/ProductController";
-import PaginatedTable from "@/components/PaginatedTable.vue";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { TableCell, TableHead } from "@/components/ui/table";
-import { index } from "@/routes/products";
-import type { PaginatedData, Product } from "@/types";
+import { Link } from '@inertiajs/vue3';
+import { Pencil } from '@lucide/vue';
+import { edit } from '@/actions/App/Http/Controllers/ProductController';
+import PaginatedTable from '@/components/PaginatedTable.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { Button } from '@/components/ui/button';
+import { TableCell, TableHead } from '@/components/ui/table';
+import { usePaginatedNavigation } from '@/composables/usePaginatedNavigation';
+import { index } from '@/routes/products';
+import type { PaginatedData, Product } from '@/types';
 
 const props = defineProps<{
     products: PaginatedData<Product>;
 }>();
 
-function visitPage(page: number): void {
-    if (page === props.products.current_page) {
-        return;
-    }
-
-    router.visit(index({ query: { page } }), {
-        preserveScroll: true,
-        preserveState: true,
-    });
-}
+const visitPage = usePaginatedNavigation(
+    () => props.products.current_page,
+    (page) => index({ query: { page } }),
+);
 </script>
 
 <template>
@@ -51,14 +46,18 @@ function visitPage(page: number): void {
                 </p>
             </TableCell>
             <TableCell class="px-4 py-4">
-                <Badge :variant="product.status === 'active' ? 'default' : 'secondary'">
-                    {{ product.status === "active" ? "Active" : "Inactive" }}
-                </Badge>
+                <StatusBadge
+                    :status="product.status"
+                    :tone="product.status === 'active' ? 'success' : 'neutral'"
+                />
             </TableCell>
             <TableCell class="px-4 py-4">
                 <div class="flex justify-end gap-1">
                     <Button variant="ghost" size="icon" as-child>
-                        <Link :href="edit(product.id)" :aria-label="`Edit ${product.name}`">
+                        <Link
+                            :href="edit(product.id)"
+                            :aria-label="`Edit ${product.name}`"
+                        >
                             <Pencil />
                         </Link>
                     </Button>

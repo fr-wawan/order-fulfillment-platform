@@ -2,6 +2,7 @@
 
 use App\Actions\Order\CreateOrderAction;
 use App\Enums\Sku\SkuStatus;
+use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Sku;
@@ -45,6 +46,7 @@ describe('show', function () {
     it('renders order details with item price snapshots', function () {
         $user = User::factory()->create();
         $sku = Sku::factory()->create(['price' => 2_500]);
+        Inventory::factory()->for($sku)->create(['quantity' => 2]);
         $order = app(CreateOrderAction::class)->handle([
             'items' => [['sku_id' => $sku->id, 'quantity' => 2]],
         ]);
@@ -68,6 +70,7 @@ describe('store', function () {
             'price' => 1_250,
             'status' => SkuStatus::Inactive,
         ]);
+        Inventory::factory()->for($inactiveSku)->create(['quantity' => 3]);
 
         $this->actingAs($user)
             ->post(route('orders.store'), [
@@ -92,6 +95,7 @@ describe('store', function () {
 
     it('rolls back the entire order when an item cannot be created', function () {
         $sku = Sku::factory()->create(['price' => 1_250]);
+        $inventory = Inventory::factory()->for($sku)->create(['quantity' => 2]);
         OrderItem::creating(fn () => throw new RuntimeException('Order item failed.'));
 
         expect(fn () => app(CreateOrderAction::class)->handle([
@@ -100,10 +104,12 @@ describe('store', function () {
 
         expect(Order::query()->count())->toBe(0);
         expect(OrderItem::query()->count())->toBe(0);
+        expect($inventory->refresh()->reserved_quantity)->toBe(0);
     });
 
     it('keeps the original item price after the SKU price changes', function () {
         $sku = Sku::factory()->create(['price' => 1_250]);
+        Inventory::factory()->for($sku)->create(['quantity' => 2]);
         $order = app(CreateOrderAction::class)->handle([
             'items' => [['sku_id' => $sku->id, 'quantity' => 2]],
         ]);

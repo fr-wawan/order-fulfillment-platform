@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Form, router } from "@inertiajs/vue3";
-import { Pencil, Plus, Trash2 } from "@lucide/vue";
-import { destroy } from "@/actions/App/Http/Controllers/InventoryController";
-import PaginatedTable from "@/components/PaginatedTable.vue";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form } from '@inertiajs/vue3';
+import { Pencil, Plus, Trash2 } from '@lucide/vue';
+import { destroy } from '@/actions/App/Http/Controllers/InventoryController';
+import PaginatedTable from '@/components/PaginatedTable.vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogClose,
@@ -14,7 +14,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
     Table,
     TableBody,
@@ -23,10 +23,12 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
-import InventoryFormDialog from "@/components/warehouses/InventoryFormDialog.vue";
-import { edit } from "@/routes/warehouses";
-import type { Inventory, InventorySku, PaginatedData } from "@/types";
+} from '@/components/ui/table';
+import InventoryFormDialog from '@/components/warehouses/InventoryFormDialog.vue';
+import { usePaginatedNavigation } from '@/composables/usePaginatedNavigation';
+import { formatNumber } from '@/lib/formatters';
+import { edit } from '@/routes/warehouses';
+import type { Inventory, InventorySku, PaginatedData } from '@/types';
 
 const props = defineProps<{
     warehouseId?: number;
@@ -36,17 +38,15 @@ const props = defineProps<{
     disabled?: boolean;
 }>();
 
-function formatQuantity(quantity: number): string {
-    return new Intl.NumberFormat().format(quantity);
-}
+const navigateToPage = usePaginatedNavigation(
+    () => props.inventories?.current_page ?? 1,
+    (page) => edit(props.warehouseId!, { query: { page } }),
+);
 
 function visitPage(page: number): void {
-    if (!props.warehouseId || page === props.inventories?.current_page) return;
-
-    router.visit(edit(props.warehouseId, { query: { page } }), {
-        preserveScroll: true,
-        preserveState: true,
-    });
+    if (props.warehouseId) {
+        navigateToPage(page);
+    }
 }
 </script>
 
@@ -58,8 +58,8 @@ function visitPage(page: number): void {
                 <p class="text-muted-foreground text-sm">
                     {{
                         disabled
-                            ? "Save the warehouse before adding inventory."
-                            : "Manage SKU quantities stored in this warehouse."
+                            ? 'Save the warehouse before adding inventory.'
+                            : 'Manage SKU quantities stored in this warehouse.'
                     }}
                 </p>
             </div>
@@ -76,7 +76,10 @@ function visitPage(page: number): void {
             <Button v-else disabled><Plus />Add inventory</Button>
         </CardHeader>
         <CardContent :class="disabled && 'pointer-events-none opacity-60'">
-            <div v-if="disabled" class="border-border overflow-hidden rounded-xl border">
+            <div
+                v-if="disabled"
+                class="border-border overflow-hidden rounded-xl border"
+            >
                 <Table>
                     <TableHeader class="bg-muted/50">
                         <TableRow>
@@ -111,11 +114,15 @@ function visitPage(page: number): void {
                 <template #row="{ row: inventory }">
                     <TableCell class="px-4">
                         <p class="font-mono">{{ inventory.sku.code }}</p>
-                        <p class="text-muted-foreground text-sm">{{ inventory.sku.name }}</p>
+                        <p class="text-muted-foreground text-sm">
+                            {{ inventory.sku.name }}
+                        </p>
                     </TableCell>
-                    <TableCell class="px-4">{{ inventory.sku.product.name }}</TableCell>
+                    <TableCell class="px-4">{{
+                        inventory.sku.product.name
+                    }}</TableCell>
                     <TableCell class="px-4 text-right font-medium tabular-nums">
-                        {{ formatQuantity(inventory.quantity) }}
+                        {{ formatNumber(inventory.quantity) }}
                     </TableCell>
                     <TableCell class="px-4">
                         <div class="flex justify-end gap-1">
@@ -155,15 +162,22 @@ function visitPage(page: number): void {
                                         :options="{ preserveScroll: true }"
                                     >
                                         <DialogHeader>
-                                            <DialogTitle>Delete inventory?</DialogTitle>
+                                            <DialogTitle
+                                                >Delete inventory?</DialogTitle
+                                            >
                                             <DialogDescription>
-                                                This removes {{ inventory.sku.code }} from this
-                                                warehouse. This action cannot be undone.
+                                                This removes
+                                                {{ inventory.sku.code }} from
+                                                this warehouse. This action
+                                                cannot be undone.
                                             </DialogDescription>
                                         </DialogHeader>
                                         <DialogFooter class="mt-6 gap-2">
                                             <DialogClose as-child>
-                                                <Button type="button" variant="outline">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                >
                                                     Cancel
                                                 </Button>
                                             </DialogClose>
@@ -172,7 +186,11 @@ function visitPage(page: number): void {
                                                 variant="destructive"
                                                 :disabled="processing"
                                             >
-                                                {{ processing ? "Deleting…" : "Delete inventory" }}
+                                                {{
+                                                    processing
+                                                        ? 'Deleting…'
+                                                        : 'Delete inventory'
+                                                }}
                                             </Button>
                                         </DialogFooter>
                                     </Form>

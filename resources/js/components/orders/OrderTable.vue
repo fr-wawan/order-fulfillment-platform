@@ -1,33 +1,23 @@
 <script setup lang="ts">
-import { Link, router } from "@inertiajs/vue3";
-import { Eye } from "@lucide/vue";
-import PaginatedTable from "@/components/PaginatedTable.vue";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { TableCell, TableHead } from "@/components/ui/table";
-import { formatMoney } from "@/lib/formatters";
-import { index, show } from "@/routes/orders";
-import type { Order, PaginatedData } from "@/types";
+import { Link } from '@inertiajs/vue3';
+import { Eye } from '@lucide/vue';
+import PaginatedTable from '@/components/PaginatedTable.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { Button } from '@/components/ui/button';
+import { TableCell, TableHead } from '@/components/ui/table';
+import { usePaginatedNavigation } from '@/composables/usePaginatedNavigation';
+import { formatDateTime, formatMoney } from '@/lib/formatters';
+import { index, show } from '@/routes/orders';
+import type { Order, PaginatedData } from '@/types';
 
 const props = defineProps<{
     orders: PaginatedData<Order>;
 }>();
 
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-});
-
-function visitPage(page: number): void {
-    if (page === props.orders.current_page) {
-        return;
-    }
-
-    router.visit(index({ query: { page } }), {
-        preserveScroll: true,
-        preserveState: true,
-    });
-}
+const visitPage = usePaginatedNavigation(
+    () => props.orders.current_page,
+    (page) => index({ query: { page } }),
+);
 </script>
 
 <template>
@@ -53,9 +43,10 @@ function visitPage(page: number): void {
                 {{ order.order_number }}
             </TableCell>
             <TableCell class="px-4 py-4">
-                <Badge :variant="order.status === 'pending' ? 'default' : 'secondary'">
-                    {{ order.status === "pending" ? "Pending" : "Cancelled" }}
-                </Badge>
+                <StatusBadge
+                    :status="order.status"
+                    :tone="order.status === 'pending' ? 'warning' : 'danger'"
+                />
             </TableCell>
             <TableCell class="px-4 py-4">
                 {{ order.items_count }}
@@ -64,11 +55,14 @@ function visitPage(page: number): void {
                 {{ formatMoney(order.total_amount) }}
             </TableCell>
             <TableCell class="text-muted-foreground px-4 py-4 text-sm">
-                {{ dateFormatter.format(new Date(order.created_at)) }}
+                {{ formatDateTime(order.created_at) }}
             </TableCell>
             <TableCell class="px-4 py-4 text-right">
                 <Button variant="ghost" size="icon" as-child>
-                    <Link :href="show(order.id)" :aria-label="`View ${order.order_number}`">
+                    <Link
+                        :href="show(order.id)"
+                        :aria-label="`View ${order.order_number}`"
+                    >
                         <Eye />
                     </Link>
                 </Button>

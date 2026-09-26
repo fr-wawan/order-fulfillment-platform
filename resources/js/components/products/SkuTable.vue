@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { router } from "@inertiajs/vue3";
-import { Pencil, Plus } from "@lucide/vue";
-import PaginatedTable from "@/components/PaginatedTable.vue";
-import SkuFormDialog from "@/components/products/SkuFormDialog.vue";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Pencil, Plus } from '@lucide/vue';
+import PaginatedTable from '@/components/PaginatedTable.vue';
+import SkuFormDialog from '@/components/products/SkuFormDialog.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Table,
     TableBody,
@@ -14,10 +13,11 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
-import { formatMoney } from "@/lib/formatters";
-import { edit } from "@/routes/products";
-import type { PaginatedData, Sku } from "@/types";
+} from '@/components/ui/table';
+import { formatMoney } from '@/lib/formatters';
+import { usePaginatedNavigation } from '@/composables/usePaginatedNavigation';
+import { edit } from '@/routes/products';
+import type { PaginatedData, Sku } from '@/types';
 
 const props = defineProps<{
     productId?: number;
@@ -25,15 +25,15 @@ const props = defineProps<{
     disabled?: boolean;
 }>();
 
-function visitPage(page: number): void {
-    if (!props.productId || page === props.skus?.current_page) {
-        return;
-    }
+const navigateToPage = usePaginatedNavigation(
+    () => props.skus?.current_page ?? 1,
+    (page) => edit(props.productId!, { query: { page } }),
+);
 
-    router.visit(edit(props.productId, { query: { page } }), {
-        preserveScroll: true,
-        preserveState: true,
-    });
+function visitPage(page: number): void {
+    if (props.productId) {
+        navigateToPage(page);
+    }
 }
 </script>
 
@@ -45,18 +45,24 @@ function visitPage(page: number): void {
                 <p class="text-muted-foreground text-sm">
                     {{
                         disabled
-                            ? "Save the product before adding SKUs."
-                            : "Manage the stock keeping units for this product."
+                            ? 'Save the product before adding SKUs.'
+                            : 'Manage the stock keeping units for this product.'
                     }}
                 </p>
             </div>
-            <SkuFormDialog v-if="productId && !disabled" :product-id="productId">
+            <SkuFormDialog
+                v-if="productId && !disabled"
+                :product-id="productId"
+            >
                 <Button><Plus />Add SKU</Button>
             </SkuFormDialog>
             <Button v-else disabled><Plus />Add SKU</Button>
         </CardHeader>
         <CardContent :class="disabled && 'pointer-events-none opacity-60'">
-            <div v-if="disabled" class="border-border overflow-hidden rounded-xl border">
+            <div
+                v-if="disabled"
+                class="border-border overflow-hidden rounded-xl border"
+            >
                 <Table>
                     <TableHeader class="bg-muted/50">
                         <TableRow>
@@ -68,7 +74,9 @@ function visitPage(page: number): void {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableEmpty :colspan="5"> Save the product to manage SKUs. </TableEmpty>
+                        <TableEmpty :colspan="5">
+                            Save the product to manage SKUs.
+                        </TableEmpty>
                     </TableBody>
                 </Table>
             </div>
@@ -97,9 +105,12 @@ function visitPage(page: number): void {
                         {{ formatMoney(sku.price) }}
                     </TableCell>
                     <TableCell class="px-4">
-                        <Badge :variant="sku.status === 'active' ? 'default' : 'secondary'">
-                            {{ sku.status === "active" ? "Active" : "Inactive" }}
-                        </Badge>
+                        <StatusBadge
+                            :status="sku.status"
+                            :tone="
+                                sku.status === 'active' ? 'success' : 'neutral'
+                            "
+                        />
                     </TableCell>
                     <TableCell class="px-4">
                         <div class="flex justify-end gap-1">

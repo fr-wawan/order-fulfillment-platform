@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { Form, Link, router } from "@inertiajs/vue3";
-import { Pencil, Trash2 } from "@lucide/vue";
-import { destroy, edit } from "@/actions/App/Http/Controllers/WarehouseController";
-import PaginatedTable from "@/components/PaginatedTable.vue";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Form, Link } from '@inertiajs/vue3';
+import { Pencil, Trash2 } from '@lucide/vue';
+import {
+    destroy,
+    edit,
+} from '@/actions/App/Http/Controllers/WarehouseController';
+import PaginatedTable from '@/components/PaginatedTable.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogClose,
@@ -14,21 +17,18 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
-import { TableCell, TableHead } from "@/components/ui/table";
-import { index } from "@/routes/warehouses";
-import type { PaginatedData, Warehouse } from "@/types";
+} from '@/components/ui/dialog';
+import { TableCell, TableHead } from '@/components/ui/table';
+import { usePaginatedNavigation } from '@/composables/usePaginatedNavigation';
+import { index } from '@/routes/warehouses';
+import type { PaginatedData, Warehouse } from '@/types';
 
 const props = defineProps<{ warehouses: PaginatedData<Warehouse> }>();
 
-function visitPage(page: number): void {
-    if (page === props.warehouses.current_page) return;
-
-    router.visit(index({ query: { page } }), {
-        preserveScroll: true,
-        preserveState: true,
-    });
-}
+const visitPage = usePaginatedNavigation(
+    () => props.warehouses.current_page,
+    (page) => index({ query: { page } }),
+);
 </script>
 
 <template>
@@ -49,14 +49,20 @@ function visitPage(page: number): void {
             <TableCell class="px-4 font-mono">{{ warehouse.code }}</TableCell>
             <TableCell class="px-4 font-medium">{{ warehouse.name }}</TableCell>
             <TableCell class="px-4">
-                <Badge :variant="warehouse.status === 'active' ? 'default' : 'secondary'">
-                    {{ warehouse.status === "active" ? "Active" : "Inactive" }}
-                </Badge>
+                <StatusBadge
+                    :status="warehouse.status"
+                    :tone="
+                        warehouse.status === 'active' ? 'success' : 'neutral'
+                    "
+                />
             </TableCell>
             <TableCell class="px-4">
                 <div class="flex justify-end gap-1">
                     <Button variant="ghost" size="icon" as-child>
-                        <Link :href="edit(warehouse.id)" :aria-label="`Edit ${warehouse.name}`">
+                        <Link
+                            :href="edit(warehouse.id)"
+                            :aria-label="`Edit ${warehouse.name}`"
+                        >
                             <Pencil />
                         </Link>
                     </Button>
@@ -79,20 +85,28 @@ function visitPage(page: number): void {
                                 <DialogHeader>
                                     <DialogTitle>Delete warehouse?</DialogTitle>
                                     <DialogDescription>
-                                        This will permanently delete “{{ warehouse.name }}” and its
-                                        inventory records. This action cannot be undone.
+                                        This will permanently delete “{{
+                                            warehouse.name
+                                        }}” and its inventory records. This
+                                        action cannot be undone.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <DialogFooter class="mt-6 gap-2">
                                     <DialogClose as-child>
-                                        <Button type="button" variant="outline">Cancel</Button>
+                                        <Button type="button" variant="outline"
+                                            >Cancel</Button
+                                        >
                                     </DialogClose>
                                     <Button
                                         type="submit"
                                         variant="destructive"
                                         :disabled="processing"
                                     >
-                                        {{ processing ? "Deleting…" : "Delete warehouse" }}
+                                        {{
+                                            processing
+                                                ? 'Deleting…'
+                                                : 'Delete warehouse'
+                                        }}
                                     </Button>
                                 </DialogFooter>
                             </Form>

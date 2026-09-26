@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Guarded(['id'])]
 class Inventory extends Model
@@ -22,5 +23,10 @@ class Inventory extends Model
     public function sku(): BelongsTo
     {
         return $this->belongsTo(Sku::class);
+    }
+
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(InventoryReservation::class);
     }
 }

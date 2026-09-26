@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Head, Link } from "@inertiajs/vue3";
-import { ArrowLeft } from "@lucide/vue";
-import Heading from "@/components/Heading.vue";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Head, Link } from '@inertiajs/vue3';
+import { ArrowLeft } from '@lucide/vue';
+import Heading from '@/components/Heading.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Table,
     TableBody,
@@ -12,23 +12,18 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
-import { formatMoney } from "@/lib/formatters";
-import { index } from "@/routes/orders";
-import type { OrderDetail } from "@/types";
+} from '@/components/ui/table';
+import { formatDateTime, formatMoney } from '@/lib/formatters';
+import { index } from '@/routes/orders';
+import type { OrderDetail } from '@/types';
 
 const props = defineProps<{
     order: OrderDetail;
 }>();
 
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-    dateStyle: "long",
-    timeStyle: "short",
-});
-
 defineOptions({
     layout: {
-        breadcrumbs: [{ title: "Orders", href: index() }],
+        breadcrumbs: [{ title: 'Orders', href: index() }],
     },
 });
 </script>
@@ -37,10 +32,12 @@ defineOptions({
     <Head :title="order.order_number" />
 
     <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-6">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+        >
             <Heading
                 :title="order.order_number"
-                :description="`Created ${dateFormatter.format(new Date(order.created_at))}`"
+                :description="`Created ${formatDateTime(order.created_at, 'long')}`"
             />
             <Button variant="outline" as-child>
                 <Link :href="index()">
@@ -56,9 +53,12 @@ defineOptions({
                     <p class="text-muted-foreground text-sm">Status</p>
                 </CardHeader>
                 <CardContent>
-                    <Badge :variant="order.status === 'pending' ? 'default' : 'secondary'">
-                        {{ order.status === "pending" ? "Pending" : "Cancelled" }}
-                    </Badge>
+                    <StatusBadge
+                        :status="order.status"
+                        :tone="
+                            order.status === 'pending' ? 'warning' : 'danger'
+                        "
+                    />
                 </CardContent>
             </Card>
             <Card>
@@ -83,7 +83,8 @@ defineOptions({
             <CardHeader>
                 <CardTitle>Order items</CardTitle>
                 <p class="text-muted-foreground text-sm">
-                    Unit prices are snapshots captured when this order was created.
+                    Unit prices are snapshots captured when this order was
+                    created.
                 </p>
             </CardHeader>
             <CardContent>
@@ -93,30 +94,53 @@ defineOptions({
                             <TableRow>
                                 <TableHead class="px-4">SKU</TableHead>
                                 <TableHead class="px-4">Product</TableHead>
-                                <TableHead class="px-4 text-right">Unit price</TableHead>
-                                <TableHead class="px-4 text-right">Quantity</TableHead>
-                                <TableHead class="px-4 text-right">Line total</TableHead>
+                                <TableHead class="px-4 text-right"
+                                    >Unit price</TableHead
+                                >
+                                <TableHead class="px-4 text-right"
+                                    >Quantity</TableHead
+                                >
+                                <TableHead class="px-4 text-right"
+                                    >Line total</TableHead
+                                >
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow v-for="item in order.items" :key="item.id">
+                            <TableRow
+                                v-for="item in order.items"
+                                :key="item.id"
+                            >
                                 <TableCell class="px-4 py-4">
-                                    <p class="font-medium">{{ item.sku.name }}</p>
-                                    <p class="text-muted-foreground font-mono text-xs">
+                                    <p class="font-medium">
+                                        {{ item.sku.name }}
+                                    </p>
+                                    <p
+                                        class="text-muted-foreground font-mono text-xs"
+                                    >
                                         {{ item.sku.code }}
                                     </p>
                                 </TableCell>
                                 <TableCell class="px-4 py-4">
                                     {{ item.sku.product.name }}
                                 </TableCell>
-                                <TableCell class="px-4 py-4 text-right tabular-nums">
+                                <TableCell
+                                    class="px-4 py-4 text-right tabular-nums"
+                                >
                                     {{ formatMoney(item.unit_price) }}
                                 </TableCell>
-                                <TableCell class="px-4 py-4 text-right tabular-nums">
+                                <TableCell
+                                    class="px-4 py-4 text-right tabular-nums"
+                                >
                                     {{ item.quantity }}
                                 </TableCell>
-                                <TableCell class="px-4 py-4 text-right font-semibold tabular-nums">
-                                    {{ formatMoney(item.unit_price * item.quantity) }}
+                                <TableCell
+                                    class="px-4 py-4 text-right font-semibold tabular-nums"
+                                >
+                                    {{
+                                        formatMoney(
+                                            item.unit_price * item.quantity,
+                                        )
+                                    }}
                                 </TableCell>
                             </TableRow>
                         </TableBody>
