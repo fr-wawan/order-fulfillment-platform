@@ -8,6 +8,20 @@ use App\Models\OrderItem;
 use App\Models\Sku;
 use Illuminate\Validation\ValidationException;
 
+use function Pest\Laravel\travelTo;
+
+it('sets the order expiration to fifteen minutes after creation', function () {
+    travelTo('2026-09-26 12:00:00');
+    $sku = Sku::factory()->create(['price' => 1_250]);
+    Inventory::factory()->for($sku)->create(['quantity' => 10]);
+
+    $order = app(CreateOrderAction::class)->handle([
+        'items' => [['sku_id' => $sku->id, 'quantity' => 1]],
+    ]);
+
+    expect((string) $order->getRawOriginal('expires_at'))->toBe('2026-09-26 12:15:00');
+});
+
 it('reserves inventory for normalized order items', function () {
     $sku = Sku::factory()->create(['price' => 1_250]);
     $inventory = Inventory::factory()->for($sku)->create([

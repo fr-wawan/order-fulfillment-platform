@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+use function Illuminate\Support\now;
+
 class CreateOrderAction
 {
     public function handle(array $data): Order
@@ -20,7 +22,7 @@ class CreateOrderAction
                 ->sortBy('sku_id')
                 ->values();
 
-            $skuIds = $items->map(fn (array $item) => $item['sku_id']);
+            $skuIds = $items->map(fn(array $item) => $item['sku_id']);
 
             $skus = Sku::whereIn('id', $skuIds)
                 ->lockForUpdate()
@@ -31,6 +33,7 @@ class CreateOrderAction
                 'order_number' => $this->generateOrderNumber(),
                 'status' => OrderStatus::Pending,
                 'total_amount' => $this->calculateTotalAmount($items, $skus),
+                'expires_at' => now()->addMinutes(15)
             ]);
 
             $this->createOrderItems($order, $items, $skus);
@@ -42,11 +45,11 @@ class CreateOrderAction
     private function normalizeItems(array $items): Collection
     {
         return collect($items)
-            ->groupBy(fn (array $item) => (int) $item['sku_id'])
-            ->map(fn ($items, $skuId) => [
+            ->groupBy(fn(array $item) => (int) $item['sku_id'])
+            ->map(fn($items, $skuId) => [
                 'sku_id' => (int) $skuId,
                 'quantity' => $items->sum(
-                    fn (array $item) => (int) $item['quantity']
+                    fn(array $item) => (int) $item['quantity']
                 ),
             ])
             ->values();
@@ -54,7 +57,7 @@ class CreateOrderAction
 
     private function generateOrderNumber(): string
     {
-        return strtoupper('ORD-'.Str::random(8));
+        return strtoupper('ORD-' . Str::random(8));
     }
 
     private function calculateTotalAmount(Collection $items, Collection $skus): int

@@ -6,7 +6,9 @@ use App\Enums\Order\OrderStatus;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 
-class CancelOrderAction
+use function Illuminate\Support\now;
+
+class ExpireOrderAction
 {
     public function __construct(private ReleaseOrderReservationsAction $releaseOrderReservations) {}
 
@@ -17,14 +19,14 @@ class CancelOrderAction
                 ->lockForUpdate()
                 ->findOrFail($order->id);
 
-            if ($order->status !== OrderStatus::Pending) {
+            if ($order->status !== OrderStatus::Pending || $order->expires_at > now()) {
                 return $order;
             }
 
             $this->releaseOrderReservations->handle($order);
 
             $order->update([
-                'status' => OrderStatus::Cancelled,
+                'status' => OrderStatus::Expired,
             ]);
 
             return $order;
