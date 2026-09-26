@@ -2,17 +2,10 @@
 import { Trash2 } from '@lucide/vue';
 import { computed } from 'vue';
 import InputError from '@/components/InputError.vue';
-import StatusBadge from '@/components/StatusBadge.vue';
+import OrderSkuSelect from '@/components/orders/OrderSkuSelect.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { formatMoney } from '@/lib/formatters';
 import type { OrderFormItem, OrderSkuOption } from '@/types';
 
@@ -40,12 +33,6 @@ const lineTotal = computed(
         (selectedSku.value?.price ?? 0) *
         Math.max(Number(item.value.quantity) || 0, 0),
 );
-
-function isSkuUnavailable(skuId: number): boolean {
-    const value = String(skuId);
-
-    return value !== item.value.sku_id && props.selectedSkuIds.includes(value);
-}
 </script>
 
 <template>
@@ -59,43 +46,13 @@ function isSkuUnavailable(skuId: number): boolean {
             {{ itemIndex + 1 }}
         </div>
 
-        <div class="grid gap-2">
-            <Label :for="`item-${item.clientId}-sku`">SKU</Label>
-            <Select v-model="item.sku_id">
-                <SelectTrigger :id="`item-${item.clientId}-sku`" class="w-full">
-                    <SelectValue placeholder="Select a SKU" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem
-                        v-for="sku in skuOptions"
-                        :key="sku.id"
-                        :value="String(sku.id)"
-                        :disabled="isSkuUnavailable(sku.id)"
-                    >
-                        <span>{{ sku.code }} — {{ sku.name }}</span>
-                        <span v-if="sku.status === 'inactive'">
-                            (Inactive)</span
-                        >
-                    </SelectItem>
-                </SelectContent>
-            </Select>
-            <div
-                v-if="selectedSku"
-                class="flex flex-wrap items-center gap-2 text-sm"
-            >
-                <span class="text-muted-foreground">
-                    {{ selectedSku.product.name }} ·
-                    {{ formatMoney(selectedSku.price) }}
-                </span>
-                <StatusBadge
-                    :status="selectedSku.status"
-                    :tone="
-                        selectedSku.status === 'active' ? 'success' : 'neutral'
-                    "
-                />
-            </div>
-            <InputError :message="skuError" />
-        </div>
+        <OrderSkuSelect
+            :id="`item-${item.clientId}-sku`"
+            v-model="item.sku_id"
+            :sku-options="skuOptions"
+            :selected-sku-ids="selectedSkuIds"
+            :error="skuError"
+        />
 
         <div class="grid gap-2">
             <Label :for="`item-${item.clientId}-quantity`">Quantity</Label>
@@ -104,6 +61,7 @@ function isSkuUnavailable(skuId: number): boolean {
                 v-model="item.quantity"
                 type="number"
                 min="1"
+                :max="selectedSku?.available_quantity"
                 step="1"
                 :disabled="item.sku_id === ''"
                 :tabindex="item.sku_id === '' ? -1 : 0"

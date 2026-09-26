@@ -28,17 +28,32 @@ describe('index', function () {
 describe('create', function () {
     it('renders active and inactive SKU options', function () {
         $user = User::factory()->create();
-        $activeSku = Sku::factory()->create(['status' => SkuStatus::Active]);
-        $inactiveSku = Sku::factory()->create(['status' => SkuStatus::Inactive]);
+        $activeSku = Sku::factory()->create([
+            'code' => 'SKU-ACTIVE',
+            'status' => SkuStatus::Active,
+        ]);
+        $inactiveSku = Sku::factory()->create([
+            'code' => 'SKU-INACTIVE',
+            'status' => SkuStatus::Inactive,
+        ]);
+        Inventory::factory()->for($activeSku)->create([
+            'quantity' => 10,
+            'reserved_quantity' => 4,
+        ]);
+        Inventory::factory()->for($activeSku)->create([
+            'quantity' => 8,
+            'reserved_quantity' => 1,
+        ]);
 
         $this->actingAs($user)
             ->get(route('orders.create'))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('orders/Create')
                 ->has('skuOptions', 2)
-                ->where('skuOptions.0.id', fn (int $id) => in_array($id, [$activeSku->id, $inactiveSku->id], true))
-                ->where('skuOptions.1.id', fn (int $id) => in_array($id, [$activeSku->id, $inactiveSku->id], true))
-                ->where('skuOptions', fn ($skus) => collect($skus)->pluck('status')->sort()->values()->all() === ['active', 'inactive']));
+                ->where('skuOptions.0.id', $activeSku->id)
+                ->where('skuOptions.0.available_quantity', 7)
+                ->where('skuOptions.1.id', $inactiveSku->id)
+                ->where('skuOptions.1.available_quantity', 0));
     });
 });
 
@@ -64,6 +79,28 @@ describe('show', function () {
 });
 
 describe('store', function () {
+    it('returns the stock error when inventory is insufficient', function () {
+        $user = User::factory()->create();
+        $sku = Sku::factory()->create([
+            'code' => 'SKU-LIMITED',
+            'name' => 'Limited SKU',
+        ]);
+        Inventory::factory()->for($sku)->create([
+            'quantity' => 5,
+            'reserved_quantity' => 4,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('orders.store'), [
+                'items' => [['sku_id' => $sku->id, 'quantity' => 2]],
+            ])
+            ->assertSessionHasErrors([
+                'items' => 'SKU SKU-LIMITED (Limited SKU) does not have enough available stock for 2 units.',
+            ]);
+
+        expect(Order::query()->count())->toBe(0);
+    });
+
     it('creates an order containing an inactive SKU', function () {
         $user = User::factory()->create();
         $inactiveSku = Sku::factory()->create([

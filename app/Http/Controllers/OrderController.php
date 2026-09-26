@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Order\CancelOrderAction;
 use App\Actions\Order\CreateOrderAction;
 use App\Http\Requests\Order\StoreOrderRequest;
 use App\Models\Order;
@@ -26,9 +27,11 @@ class OrderController extends Controller
     {
         return Inertia::render('orders/Create', [
             'skuOptions' => Sku::query()
+                ->select(['id', 'product_id', 'code', 'name', 'price', 'status'])
                 ->with('product:id,name')
+                ->withAvailableQuantity()
                 ->orderBy('code')
-                ->get(['id', 'product_id', 'code', 'name', 'price', 'status']),
+                ->get(),
         ]);
     }
 
@@ -52,5 +55,14 @@ class OrderController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Order created successfully.']);
 
         return to_route('orders.index');
+    }
+
+    public function cancel(Order $order, CancelOrderAction $action): RedirectResponse
+    {
+        $action->handle($order);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Order cancelled successfully.']);
+
+        return back();
     }
 }

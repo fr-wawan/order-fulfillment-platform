@@ -14,7 +14,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('products', ProductController::class)->only('index', 'create', 'store', 'edit', 'update');
     Route::resource('warehouses', WarehouseController::class)->except('show');
+
     Route::resource('orders', OrderController::class)->only('index', 'create', 'store', 'show');
+    Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+
     Route::scopeBindings()->group(function () {
         Route::resource('products.skus', SkuController::class)
             ->only('store', 'update');
@@ -23,4 +26,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';

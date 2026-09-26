@@ -7,7 +7,7 @@ export type Order = {
     created_at: string;
 };
 
-export type OrderSkuOption = {
+export type OrderSku = {
     id: number;
     code: string;
     name: string;
@@ -17,6 +17,10 @@ export type OrderSkuOption = {
         id: number;
         name: string;
     };
+};
+
+export type OrderSkuOption = OrderSku & {
+    available_quantity: number;
 };
 
 export type OrderFormItem = {
@@ -30,7 +34,7 @@ export type OrderItemSnapshot = {
     sku_id: number;
     quantity: number;
     unit_price: number;
-    sku: OrderSkuOption;
+    sku: OrderSku;
 };
 
 export type OrderDetail = Omit<Order, 'items_count'> & {

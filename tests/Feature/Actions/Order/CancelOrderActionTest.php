@@ -1,0 +1,49 @@
+<?php
+
+use App\Actions\Order\CancelOrderAction;
+use App\Actions\Order\CreateOrderAction;
+use App\Enums\InventoryReservation\InventoryReservationStatus;
+use App\Enums\Order\OrderStatus;
+use App\Models\Inventory;
+use App\Models\Sku;
+
+it('marks a pending order as cancelled', function () {
+    $sku = Sku::factory()->create(['price' => 1_250]);
+    Inventory::factory()->for($sku)->create(['quantity' => 10]);
+    $order = app(CreateOrderAction::class)->handle([
+        'items' => [['sku_id' => $sku->id, 'quantity' => 3]],
+    ]);
+
+    $cancelledOrder = app(CancelOrderAction::class)->handle($order);
+
+    expect($cancelledOrder->status)->toBe(OrderStatus::Cancelled);
+    expect($order->refresh()->status)->toBe(OrderStatus::Cancelled);
+});
+
+it('releases reserved inventory when cancelling an order', function () {
+    $sku = Sku::factory()->create(['price' => 1_250]);
+    $inventory = Inventory::factory()->for($sku)->create(['quantity' => 10]);
+    $order = app(CreateOrderAction::class)->handle([
+        'items' => [['sku_id' => $sku->id, 'quantity' => 3]],
+    ]);
+    $reservation = $order->items()->sole()->reservations()->sole();
+
+    app(CancelOrderAction::class)->handle($order);
+
+    expect($inventory->refresh()->reserved_quantity)->toBe(0);
+    expect($reservation->refresh()->status)->toBe(InventoryReservationStatus::Released);
+});
+
+it('returns an already cancelled order without changing inventory', function () {
+    $sku = Sku::factory()->create(['price' => 1_250]);
+    $inventory = Inventory::factory()->for($sku)->create(['quantity' => 10]);
+    $order = app(CreateOrderAction::class)->handle([
+        'items' => [['sku_id' => $sku->id, 'quantity' => 3]],
+    ]);
+    $order->update(['status' => OrderStatus::Cancelled]);
+
+    $cancelledOrder = app(CancelOrderAction::class)->handle($order);
+
+    expect($cancelledOrder->is($order))->toBeTrue();
+    expect($inventory->refresh()->reserved_quantity)->toBe(3);
+});

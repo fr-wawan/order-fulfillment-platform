@@ -42,7 +42,10 @@ describe('forms', function () {
         $user = User::factory()->create();
         $warehouse = Warehouse::factory()->create();
         $sku = Sku::factory()->create();
-        $inventory = Inventory::factory()->for($warehouse)->for($sku)->create();
+        $inventory = Inventory::factory()->for($warehouse)->for($sku)->create([
+            'quantity' => 10,
+            'reserved_quantity' => 4,
+        ]);
 
         $this->actingAs($user)
             ->get(route('warehouses.edit', $warehouse))
@@ -51,6 +54,8 @@ describe('forms', function () {
                 ->where('warehouse.id', $warehouse->id)
                 ->has('inventories.data', 1)
                 ->where('inventories.data.0.id', $inventory->id)
+                ->where('inventories.data.0.quantity', 10)
+                ->where('inventories.data.0.reserved_quantity', 4)
                 ->where('skuOptions.0.id', $sku->id)
                 ->where('assignedSkuIds.0', $sku->id));
     });

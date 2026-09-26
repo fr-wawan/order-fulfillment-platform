@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft } from '@lucide/vue';
 import Heading from '@/components/Heading.vue';
+import CancelOrderDialog from '@/components/orders/CancelOrderDialog.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,12 +40,18 @@ defineOptions({
                 :title="order.order_number"
                 :description="`Created ${formatDateTime(order.created_at, 'long')}`"
             />
-            <Button variant="outline" as-child>
-                <Link :href="index()">
-                    <ArrowLeft />
-                    Back to orders
-                </Link>
-            </Button>
+            <div class="flex flex-wrap gap-2">
+                <CancelOrderDialog
+                    v-if="order.status === 'pending'"
+                    :order="order"
+                />
+                <Button variant="outline" as-child>
+                    <Link :href="index()">
+                        <ArrowLeft />
+                        Back to orders
+                    </Link>
+                </Button>
+            </div>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3">

@@ -3,6 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Plus } from '@lucide/vue';
 import { computed } from 'vue';
 import { store } from '@/actions/App/Http/Controllers/OrderController';
+import AlertError from '@/components/AlertError.vue';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import OrderItemRow from '@/components/orders/OrderItemRow.vue';
@@ -119,6 +120,12 @@ defineOptions({
                     </Button>
                 </CardHeader>
                 <CardContent class="flex flex-col gap-4">
+                    <AlertError
+                        v-if="form.errors.items"
+                        :errors="[form.errors.items]"
+                        title="Unable to create order."
+                    />
+
                     <div
                         v-if="skuOptions.length === 0"
                         class="border-border rounded-lg border border-dashed px-6 py-10 text-center"
@@ -144,8 +151,6 @@ defineOptions({
                         "
                         @remove="removeItem(itemIndex)"
                     />
-
-                    <InputError :message="form.errors.items" />
                 </CardContent>
             </Card>
 

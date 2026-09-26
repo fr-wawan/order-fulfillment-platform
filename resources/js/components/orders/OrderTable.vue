@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Eye } from '@lucide/vue';
+import { Ban, Eye } from '@lucide/vue';
+import CancelOrderDialog from '@/components/orders/CancelOrderDialog.vue';
 import PaginatedTable from '@/components/PaginatedTable.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
@@ -33,7 +34,7 @@ const visitPage = usePaginatedNavigation(
             <TableHead class="px-4">Items</TableHead>
             <TableHead class="px-4 text-right">Total</TableHead>
             <TableHead class="px-4">Created</TableHead>
-            <TableHead class="w-20 px-4 text-right">Actions</TableHead>
+            <TableHead class="w-28 px-4 text-right">Actions</TableHead>
         </template>
 
         <template #empty>No orders have been created yet.</template>
@@ -58,14 +59,28 @@ const visitPage = usePaginatedNavigation(
                 {{ formatDateTime(order.created_at) }}
             </TableCell>
             <TableCell class="px-4 py-4 text-right">
-                <Button variant="ghost" size="icon" as-child>
-                    <Link
-                        :href="show(order.id)"
-                        :aria-label="`View ${order.order_number}`"
+                <div class="flex justify-end gap-1">
+                    <Button variant="ghost" size="icon" as-child>
+                        <Link
+                            :href="show(order.id)"
+                            :aria-label="`View ${order.order_number}`"
+                        >
+                            <Eye />
+                        </Link>
+                    </Button>
+                    <CancelOrderDialog
+                        v-if="order.status === 'pending'"
+                        :order="order"
                     >
-                        <Eye />
-                    </Link>
-                </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            :aria-label="`Cancel ${order.order_number}`"
+                        >
+                            <Ban />
+                        </Button>
+                    </CancelOrderDialog>
+                </div>
             </TableCell>
         </template>
     </PaginatedTable>

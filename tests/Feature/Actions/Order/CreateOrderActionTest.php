@@ -33,7 +33,11 @@ it('reserves inventory for normalized order items', function () {
 });
 
 it('rolls back the order when inventory has insufficient available stock', function () {
-    $sku = Sku::factory()->create(['price' => 1_250]);
+    $sku = Sku::factory()->create([
+        'code' => 'SKU-LIMITED',
+        'name' => 'Limited SKU',
+        'price' => 1_250,
+    ]);
     $inventory = Inventory::factory()->for($sku)->create([
         'quantity' => 10,
         'reserved_quantity' => 8,
@@ -41,7 +45,10 @@ it('rolls back the order when inventory has insufficient available stock', funct
 
     expect(fn () => app(CreateOrderAction::class)->handle([
         'items' => [['sku_id' => $sku->id, 'quantity' => 3]],
-    ]))->toThrow(ValidationException::class, 'No inventory has the required stocks');
+    ]))->toThrow(
+        ValidationException::class,
+        'SKU SKU-LIMITED (Limited SKU) does not have enough available stock for 3 units.',
+    );
 
     expect($inventory->refresh()->reserved_quantity)->toBe(8);
     expect(Order::query()->count())->toBe(0);

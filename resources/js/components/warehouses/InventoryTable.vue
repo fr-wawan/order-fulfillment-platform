@@ -86,11 +86,12 @@ function visitPage(page: number): void {
                             <TableHead>SKU</TableHead>
                             <TableHead>Product</TableHead>
                             <TableHead>Quantity</TableHead>
+                            <TableHead>Reserved</TableHead>
                             <TableHead class="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableEmpty :colspan="4">
+                        <TableEmpty :colspan="5">
                             Save the warehouse to manage inventory.
                         </TableEmpty>
                     </TableBody>
@@ -101,13 +102,14 @@ function visitPage(page: number): void {
                 v-else-if="inventories && warehouseId"
                 :pagination="inventories"
                 :row-key="(inventory) => inventory.id"
-                :column-count="4"
+                :column-count="5"
                 @page-change="visitPage"
             >
                 <template #header>
                     <TableHead class="px-4">SKU</TableHead>
                     <TableHead class="px-4">Product</TableHead>
                     <TableHead class="px-4 text-right">Quantity</TableHead>
+                    <TableHead class="px-4 text-right">Reserved</TableHead>
                     <TableHead class="w-28 px-4 text-right">Actions</TableHead>
                 </template>
                 <template #empty>No inventory has been added yet.</template>
@@ -123,6 +125,9 @@ function visitPage(page: number): void {
                     }}</TableCell>
                     <TableCell class="px-4 text-right font-medium tabular-nums">
                         {{ formatNumber(inventory.quantity) }}
+                    </TableCell>
+                    <TableCell class="px-4 text-right font-medium tabular-nums">
+                        {{ formatNumber(inventory.reserved_quantity) }}
                     </TableCell>
                     <TableCell class="px-4">
                         <div class="flex justify-end gap-1">
