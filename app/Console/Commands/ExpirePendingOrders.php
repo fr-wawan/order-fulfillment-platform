@@ -8,6 +8,7 @@ use App\Models\Order;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 
 #[Signature('orders:expire-pending')]
 #[Description('Dispatch jobs for expired pending orders')]
@@ -21,9 +22,9 @@ class ExpirePendingOrders extends Command
         Order::query()
             ->dueForExpiration()
             ->select('id')
-            ->chunkById(100, function ($orders) {
+            ->chunkById(100, function (Collection $orders) {
                 foreach ($orders as $order) {
-                    ExpireOrderJob::dispatch($order);
+                    ExpireOrderJob::dispatch($order->id);
                 }
             });
 

@@ -35,6 +35,15 @@ class OrderController extends Controller
         ]);
     }
 
+    public function store(StoreOrderRequest $request, CreateOrderAction $action): RedirectResponse
+    {
+        $order = $action->handle($request->validated());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Order created successfully.']);
+
+        return to_route('orders.show', $order);
+    }
+
     public function show(Order $order): Response
     {
         $order->load([
@@ -46,15 +55,6 @@ class OrderController extends Controller
         return Inertia::render('orders/Show', [
             'order' => $order,
         ]);
-    }
-
-    public function store(StoreOrderRequest $request, CreateOrderAction $action): RedirectResponse
-    {
-        $action->handle($request->validated());
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Order created successfully.']);
-
-        return to_route('orders.index');
     }
 
     public function cancel(Order $order, CancelOrderAction $action): RedirectResponse

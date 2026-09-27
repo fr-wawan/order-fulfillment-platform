@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('order_number')->unique();
             $table->string('status');
             $table->unsignedBigInteger('total_amount');
-            $table->dateTime('expires_at');
+            $table->timestamp('expires_at');
             $table->timestamps();
         });
     }

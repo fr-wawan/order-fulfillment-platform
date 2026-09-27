@@ -37,6 +37,6 @@ it('dispatches expiration jobs only for due pending orders', function () {
     Queue::assertPushedOnce(ExpireOrderJob::class);
     Queue::assertPushed(
         ExpireOrderJob::class,
-        fn (ExpireOrderJob $job) => $job->order->is($dueOrder),
+        fn (ExpireOrderJob $job) => $job->orderId === $dueOrder->id,
     );
 });

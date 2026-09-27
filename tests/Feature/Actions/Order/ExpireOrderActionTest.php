@@ -47,7 +47,7 @@ it('expires a due pending order and releases its reserved inventory', function (
     ['inventory' => $inventory, 'order' => $order, 'reservation' => $reservation]
         = createOrderReadyForExpiration(now());
 
-    $expiredOrder = app(ExpireOrderAction::class)->handle($order);
+    $expiredOrder = app(ExpireOrderAction::class)->handle($order->id);
 
     expect($expiredOrder->status)->toBe(OrderStatus::Expired);
     expect($order->refresh()->status)->toBe(OrderStatus::Expired);
@@ -60,7 +60,7 @@ it('leaves a pending order unchanged before its expiration time', function () {
     ['inventory' => $inventory, 'order' => $order, 'reservation' => $reservation]
         = createOrderReadyForExpiration(now()->addSecond());
 
-    $pendingOrder = app(ExpireOrderAction::class)->handle($order);
+    $pendingOrder = app(ExpireOrderAction::class)->handle($order->id);
 
     expect($pendingOrder->status)->toBe(OrderStatus::Pending);
     expect($inventory->refresh()->reserved_quantity)->toBe(3);
@@ -75,7 +75,7 @@ it('leaves a non-pending order unchanged', function () {
     $inventory->update(['reserved_quantity' => 0]);
     $reservation->update(['status' => InventoryReservationStatus::Released]);
 
-    $cancelledOrder = app(ExpireOrderAction::class)->handle($order);
+    $cancelledOrder = app(ExpireOrderAction::class)->handle($order->id);
 
     expect($cancelledOrder->status)->toBe(OrderStatus::Cancelled);
     expect($inventory->refresh()->reserved_quantity)->toBe(0);
@@ -87,8 +87,8 @@ it('keeps expiration idempotent when expiring the same order twice', function ()
     ['inventory' => $inventory, 'order' => $order, 'reservation' => $reservation]
         = createOrderReadyForExpiration(now()->subSecond());
 
-    app(ExpireOrderAction::class)->handle($order);
-    $expiredOrder = app(ExpireOrderAction::class)->handle($order);
+    app(ExpireOrderAction::class)->handle($order->id);
+    $expiredOrder = app(ExpireOrderAction::class)->handle($order->id);
 
     expect($expiredOrder->status)->toBe(OrderStatus::Expired);
     expect($inventory->refresh()->reserved_quantity)->toBe(0);

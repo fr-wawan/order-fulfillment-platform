@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SkuController;
 use App\Http\Controllers\WarehouseController;
@@ -19,6 +20,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 
     Route::scopeBindings()->group(function () {
+        Route::resource('orders.payments', PaymentController::class)
+            ->only('store');
         Route::resource('products.skus', SkuController::class)
             ->only('store', 'update');
         Route::resource('warehouses.inventories', InventoryController::class)
@@ -26,4 +29,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';

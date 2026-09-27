@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'xendit' => [
+        'secret_key' => env('XENDIT_SECRET_KEY'),
+        'country' => env('PAYMENT_COUNTRY', 'ID')
+    ]
+
 ];

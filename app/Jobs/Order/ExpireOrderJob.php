@@ -14,13 +14,13 @@ class ExpireOrderJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public Order $order) {}
+    public function __construct(public int $orderId) {}
 
     /**
      * Execute the job.
      */
     public function handle(ExpireOrderAction $action): void
     {
-        $action->handle($this->order);
+        $action->handle($this->orderId);
     }
 }

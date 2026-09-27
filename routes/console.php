@@ -9,5 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('orders:expire-pending')
-    ->everyMinute()
-    ->withoutOverlapping();
+    ->everyMinute();

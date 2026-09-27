@@ -12,12 +12,12 @@ class ExpireOrderAction
 {
     public function __construct(private ReleaseOrderReservationsAction $releaseOrderReservations) {}
 
-    public function handle(Order $order): Order
+    public function handle(int $orderId): Order
     {
-        return DB::transaction(function () use ($order) {
+        return DB::transaction(function () use ($orderId) {
             $order = Order::query()
                 ->lockForUpdate()
-                ->findOrFail($order->id);
+                ->findOrFail($orderId);
 
             if ($order->status !== OrderStatus::Pending || $order->expires_at > now()) {
                 return $order;

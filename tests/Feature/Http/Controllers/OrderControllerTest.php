@@ -109,18 +109,19 @@ describe('store', function () {
         ]);
         Inventory::factory()->for($inactiveSku)->create(['quantity' => 3]);
 
-        $this->actingAs($user)
+        $response = $this->actingAs($user)
             ->post(route('orders.store'), [
                 'items' => [
                     ['sku_id' => $inactiveSku->id, 'quantity' => 2],
                     ['sku_id' => $inactiveSku->id, 'quantity' => 1],
                 ],
-            ])
-            ->assertSessionHasNoErrors()
-            ->assertRedirect(route('orders.index'));
+            ]);
 
         $order = Order::query()->firstOrFail();
 
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('orders.show', $order));
         expect($order->total_amount)->toBe(3_750);
         $this->assertDatabaseHas('order_items', [
             'order_id' => $order->id,

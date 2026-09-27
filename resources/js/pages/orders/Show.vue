@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft } from '@lucide/vue';
 import Heading from '@/components/Heading.vue';
 import CancelOrderDialog from '@/components/orders/CancelOrderDialog.vue';
+import PayOrderButton from '@/components/orders/PayOrderButton.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,6 +42,10 @@ defineOptions({
                 :description="`Created ${formatDateTime(order.created_at, 'long')}`"
             />
             <div class="flex flex-wrap gap-2">
+                <PayOrderButton
+                    v-if="order.status === 'pending'"
+                    :order="order"
+                />
                 <CancelOrderDialog
                     v-if="order.status === 'pending'"
                     :order="order"

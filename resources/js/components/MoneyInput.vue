@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { Input } from "@/components/ui/input";
-import { formatMoney } from "@/lib/formatters";
+import { computed, ref, watch } from 'vue';
+import { Input } from '@/components/ui/input';
+import { formatMoney } from '@/lib/formatters';
 
 defineOptions({ inheritAttrs: false });
 
@@ -14,26 +14,28 @@ const props = withDefaults(
         currency?: string;
     }>(),
     {
-        defaultValue: "",
+        defaultValue: '',
         modelValue: undefined,
-        locale: "en-US",
-        currency: "USD",
+        locale: 'id-ID',
+        currency: 'IDR',
     },
 );
 
 const emit = defineEmits<{
-    "update:modelValue": [value: number | null];
+    'update:modelValue': [value: number | null];
 }>();
 
 function normalize(value: string | number | undefined): string {
-    return String(value ?? "")
-        .replace(/\D/g, "")
-        .replace(/^0+(?=\d)/, "");
+    return String(value ?? '')
+        .replace(/\D/g, '')
+        .replace(/^0+(?=\d)/, '');
 }
 
 const rawValue = ref(normalize(props.modelValue ?? props.defaultValue));
 const formattedValue = computed(() =>
-    rawValue.value === "" ? "" : formatMoney(Number(rawValue.value), props.locale, props.currency),
+    rawValue.value === ''
+        ? ''
+        : formatMoney(Number(rawValue.value), props.locale, props.currency),
 );
 
 watch(
@@ -47,7 +49,10 @@ watch(
 
 function updateValue(value: string | number): void {
     rawValue.value = normalize(value);
-    emit("update:modelValue", rawValue.value === "" ? null : Number(rawValue.value));
+    emit(
+        'update:modelValue',
+        rawValue.value === '' ? null : Number(rawValue.value),
+    );
 }
 </script>
 
