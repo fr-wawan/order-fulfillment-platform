@@ -1,7 +1,7 @@
 export type Order = {
     id: number;
     order_number: string;
-    status: 'pending' | 'cancelled' | 'expired';
+    status: 'pending' | 'cancelled' | 'expired' | 'paid';
     total_amount: number;
     items_count: number;
     created_at: string;
@@ -39,4 +39,7 @@ export type OrderItemSnapshot = {
 
 export type OrderDetail = Omit<Order, 'items_count'> & {
     items: OrderItemSnapshot[];
+    payment: {
+        status: 'pending' | 'succeeded' | 'refund_pending' | 'refunded';
+    } | null;
 };

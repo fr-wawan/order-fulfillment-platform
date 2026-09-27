@@ -30,6 +30,9 @@ return new class extends Migration
                 ->nullable();
             $table->string('status');
             $table->string('session_status');
+            $table->string('provider_payment_request_id')
+                ->nullable()
+                ->unique();
             $table->timestamps();
         });
     }

@@ -4,7 +4,7 @@ use App\Actions\Payment\InitiatePaymentAction;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Payment\PaymentSessionStatus;
 use App\Enums\Payment\PaymentStatus;
-use App\Exceptions\PaymentInitiationInProgressException;
+use App\Exceptions\Payment\PaymentInitiationInProgressException;
 use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Client\Request;

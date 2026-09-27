@@ -37,7 +37,8 @@ return [
 
     'xendit' => [
         'secret_key' => env('XENDIT_SECRET_KEY'),
-        'country' => env('PAYMENT_COUNTRY', 'ID')
+        'country' => env('PAYMENT_COUNTRY', 'ID'),
+        'webhook_token' => env('WEBHOOK_TOKEN'),
     ]
 
 ];

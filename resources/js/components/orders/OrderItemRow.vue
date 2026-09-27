@@ -6,6 +6,12 @@ import OrderSkuSelect from '@/components/orders/OrderSkuSelect.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { formatMoney } from '@/lib/formatters';
 import type { OrderFormItem, OrderSkuOption } from '@/types';
 
@@ -77,19 +83,30 @@ const lineTotal = computed(
             </div>
         </div>
 
-        <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            class="md:mt-6"
-            :disabled="!canRemove"
-            :title="
-                canRemove ? 'Remove item' : 'An order needs at least one item'
-            "
-            :aria-label="`Remove item ${itemIndex + 1}`"
-            @click="emit('remove')"
-        >
-            <Trash2 />
-        </Button>
+        <TooltipProvider :delay-duration="0">
+            <Tooltip>
+                <TooltipTrigger as-child>
+                    <span class="md:mt-6">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            :disabled="!canRemove"
+                            :aria-label="`Remove item ${itemIndex + 1}`"
+                            @click="emit('remove')"
+                        >
+                            <Trash2 />
+                        </Button>
+                    </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                    {{
+                        canRemove
+                            ? 'Remove item'
+                            : 'An order needs at least one item'
+                    }}
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
     </div>
 </template>

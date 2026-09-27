@@ -94,3 +94,18 @@ it('keeps expiration idempotent when expiring the same order twice', function ()
     expect($inventory->refresh()->reserved_quantity)->toBe(0);
     expect($reservation->refresh()->status)->toBe(InventoryReservationStatus::Released);
 });
+
+it('leaves a paid order unchanged after its expiration time', function () {
+    travelTo('2026-09-26 12:00:00');
+    $order = Order::query()->create([
+        'order_number' => 'ORD-PAID-EXPIRE',
+        'status' => OrderStatus::Paid,
+        'total_amount' => 1_250,
+        'expires_at' => now()->subSecond(),
+    ]);
+
+    $expiredOrder = app(ExpireOrderAction::class)->handle($order->id);
+
+    expect($expiredOrder->status)->toBe(OrderStatus::Paid);
+    expect($order->refresh()->status)->toBe(OrderStatus::Paid);
+});

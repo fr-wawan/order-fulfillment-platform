@@ -50,6 +50,7 @@ class OrderController extends Controller
             'items' => fn ($query) => $query
                 ->with('sku.product')
                 ->oldest('id'),
+            'payment:id,order_id,status',
         ]);
 
         return Inertia::render('orders/Show', [

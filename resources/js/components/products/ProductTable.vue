@@ -6,6 +6,12 @@ import PaginatedTable from '@/components/PaginatedTable.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import { TableCell, TableHead } from '@/components/ui/table';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { usePaginatedNavigation } from '@/composables/usePaginatedNavigation';
 import { index } from '@/routes/products';
 import type { PaginatedData, Product } from '@/types';
@@ -52,16 +58,23 @@ const visitPage = usePaginatedNavigation(
                 />
             </TableCell>
             <TableCell class="px-4 py-4">
-                <div class="flex justify-end gap-1">
-                    <Button variant="ghost" size="icon" as-child>
-                        <Link
-                            :href="edit(product.id)"
-                            :aria-label="`Edit ${product.name}`"
-                        >
-                            <Pencil />
-                        </Link>
-                    </Button>
-                </div>
+                <TooltipProvider :delay-duration="0">
+                    <div class="flex justify-end gap-1">
+                        <Tooltip>
+                            <TooltipTrigger as-child>
+                                <Button variant="ghost" size="icon" as-child>
+                                    <Link
+                                        :href="edit(product.id)"
+                                        :aria-label="`Edit ${product.name}`"
+                                    >
+                                        <Pencil />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit product</TooltipContent>
+                        </Tooltip>
+                    </div>
+                </TooltipProvider>
             </TableCell>
         </template>
     </PaginatedTable>

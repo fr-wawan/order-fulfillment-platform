@@ -3,7 +3,7 @@
 namespace App\Actions\Payment;
 
 use App\Enums\Payment\PaymentSessionStatus;
-use App\Exceptions\PaymentInitiationInProgressException;
+use App\Exceptions\Payment\PaymentInitiationInProgressException;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Services\Xendit\XenditPaymentService;
@@ -23,7 +23,7 @@ class InitiatePaymentAction
         }
 
         $session = $this->xenditPaymentService->createSession([
-            'reference_id' => 'payment-' . $payment->id,
+            'reference_id' => $payment->providerReferenceId(),
             'session_type' => 'PAY',
             'mode' => 'PAYMENT_LINK',
             'amount' => $payment->amount,

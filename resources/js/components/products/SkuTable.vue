@@ -114,7 +114,11 @@ function visitPage(page: number): void {
                     </TableCell>
                     <TableCell class="px-4">
                         <div class="flex justify-end gap-1">
-                            <SkuFormDialog :product-id="productId" :sku="sku">
+                            <SkuFormDialog
+                                :product-id="productId"
+                                :sku="sku"
+                                trigger-tooltip="Edit SKU"
+                            >
                                 <Button
                                     variant="ghost"
                                     size="icon"

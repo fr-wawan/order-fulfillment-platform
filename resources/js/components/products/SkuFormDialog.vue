@@ -18,6 +18,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
     Select,
     SelectContent,
     SelectItem,
@@ -29,6 +35,7 @@ import type { Sku } from "@/types";
 const props = defineProps<{
     productId: number;
     sku?: Sku;
+    triggerTooltip?: string;
 }>();
 
 const open = ref(false);
@@ -42,7 +49,19 @@ const formAction = computed(() =>
 
 <template>
     <Dialog v-model:open="open">
-        <DialogTrigger as-child>
+        <template v-if="triggerTooltip">
+            <TooltipProvider :delay-duration="0">
+                <Tooltip>
+                    <TooltipTrigger as-child>
+                        <DialogTrigger as-child>
+                            <slot />
+                        </DialogTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>{{ triggerTooltip }}</TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </template>
+        <DialogTrigger v-else as-child>
             <slot />
         </DialogTrigger>
         <DialogContent>

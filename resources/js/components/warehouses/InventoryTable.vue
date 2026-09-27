@@ -123,6 +123,7 @@ function visitPage(page: number): void {
                             :inventory="inventory"
                             :sku-options="skuOptions"
                             :assigned-sku-ids="assignedSkuIds"
+                            trigger-tooltip="Edit inventory"
                         >
                             <Button
                                 variant="ghost"

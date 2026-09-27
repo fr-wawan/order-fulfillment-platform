@@ -6,6 +6,12 @@ import PaginatedTable from '@/components/PaginatedTable.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import { TableCell, TableHead } from '@/components/ui/table';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { usePaginatedNavigation } from '@/composables/usePaginatedNavigation';
 import { formatDateTime, formatMoney } from '@/lib/formatters';
 import { index, show } from '@/routes/orders';
@@ -59,28 +65,35 @@ const visitPage = usePaginatedNavigation(
                 {{ formatDateTime(order.created_at) }}
             </TableCell>
             <TableCell class="px-4 py-4 text-right">
-                <div class="flex justify-end gap-1">
-                    <Button variant="ghost" size="icon" as-child>
-                        <Link
-                            :href="show(order.id)"
-                            :aria-label="`View ${order.order_number}`"
+                <TooltipProvider :delay-duration="0">
+                    <div class="flex justify-end gap-1">
+                        <Tooltip>
+                            <TooltipTrigger as-child>
+                                <Button variant="ghost" size="icon" as-child>
+                                    <Link
+                                        :href="show(order.id)"
+                                        :aria-label="`View ${order.order_number}`"
+                                    >
+                                        <Eye />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>View order</TooltipContent>
+                        </Tooltip>
+                        <CancelOrderDialog
+                            v-if="order.status === 'pending'"
+                            :order="order"
                         >
-                            <Eye />
-                        </Link>
-                    </Button>
-                    <CancelOrderDialog
-                        v-if="order.status === 'pending'"
-                        :order="order"
-                    >
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            :aria-label="`Cancel ${order.order_number}`"
-                        >
-                            <Ban />
-                        </Button>
-                    </CancelOrderDialog>
-                </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                :aria-label="`Cancel ${order.order_number}`"
+                            >
+                                <Ban />
+                            </Button>
+                        </CancelOrderDialog>
+                    </div>
+                </TooltipProvider>
             </TableCell>
         </template>
     </PaginatedTable>

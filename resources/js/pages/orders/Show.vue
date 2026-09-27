@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft } from '@lucide/vue';
+import { computed } from 'vue';
 import Heading from '@/components/Heading.vue';
 import CancelOrderDialog from '@/components/orders/CancelOrderDialog.vue';
 import PayOrderButton from '@/components/orders/PayOrderButton.vue';
@@ -22,6 +23,25 @@ import type { OrderDetail } from '@/types';
 const props = defineProps<{
     order: OrderDetail;
 }>();
+
+const paymentStatus = computed(() => {
+    if (!props.order.payment) {
+        return {
+            label: 'Not started',
+            tone: 'neutral' as const,
+        };
+    }
+
+    return {
+        pending: { label: 'Pending', tone: 'warning' as const },
+        succeeded: { label: 'Succeeded', tone: 'success' as const },
+        refund_pending: {
+            label: 'Refund in progress',
+            tone: 'warning' as const,
+        },
+        refunded: { label: 'Refunded', tone: 'info' as const },
+    }[props.order.payment.status];
+});
 
 defineOptions({
     layout: {
@@ -59,7 +79,7 @@ defineOptions({
             </div>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-3">
+        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <Card>
                 <CardHeader class="pb-2">
                     <p class="text-muted-foreground text-sm">Status</p>
@@ -68,8 +88,24 @@ defineOptions({
                     <StatusBadge
                         :status="order.status"
                         :tone="
-                            order.status === 'pending' ? 'warning' : 'danger'
+                            order.status === 'pending'
+                                ? 'warning'
+                                : order.status === 'paid'
+                                  ? 'success'
+                                  : 'danger'
                         "
+                    />
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader class="pb-2">
+                    <p class="text-muted-foreground text-sm">Payment</p>
+                </CardHeader>
+                <CardContent>
+                    <StatusBadge
+                        :status="order.payment?.status ?? 'not_started'"
+                        :label="paymentStatus.label"
+                        :tone="paymentStatus.tone"
                     />
                 </CardContent>
             </Card>

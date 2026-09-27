@@ -17,6 +17,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
     Select,
     SelectContent,
     SelectItem,
@@ -30,6 +36,7 @@ const props = defineProps<{
     inventory?: Inventory;
     skuOptions: InventorySku[];
     assignedSkuIds: number[];
+    triggerTooltip?: string;
 }>();
 
 const open = ref(false);
@@ -47,7 +54,17 @@ function isSkuUnavailable(skuId: number): boolean {
 
 <template>
     <Dialog v-model:open="open">
-        <DialogTrigger as-child><slot /></DialogTrigger>
+        <template v-if="triggerTooltip">
+            <TooltipProvider :delay-duration="0">
+                <Tooltip>
+                    <TooltipTrigger as-child>
+                        <DialogTrigger as-child><slot /></DialogTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>{{ triggerTooltip }}</TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </template>
+        <DialogTrigger v-else as-child><slot /></DialogTrigger>
         <DialogContent>
             <Form
                 v-bind="formAction"

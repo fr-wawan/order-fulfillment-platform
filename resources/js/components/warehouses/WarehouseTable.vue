@@ -19,6 +19,12 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { TableCell, TableHead } from '@/components/ui/table';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { usePaginatedNavigation } from '@/composables/usePaginatedNavigation';
 import { index } from '@/routes/warehouses';
 import type { PaginatedData, Warehouse } from '@/types';
@@ -57,25 +63,36 @@ const visitPage = usePaginatedNavigation(
                 />
             </TableCell>
             <TableCell class="px-4">
-                <div class="flex justify-end gap-1">
-                    <Button variant="ghost" size="icon" as-child>
-                        <Link
-                            :href="edit(warehouse.id)"
-                            :aria-label="`Edit ${warehouse.name}`"
-                        >
-                            <Pencil />
-                        </Link>
-                    </Button>
+                <TooltipProvider :delay-duration="0">
+                    <div class="flex justify-end gap-1">
+                        <Tooltip>
+                            <TooltipTrigger as-child>
+                                <Button variant="ghost" size="icon" as-child>
+                                    <Link
+                                        :href="edit(warehouse.id)"
+                                        :aria-label="`Edit ${warehouse.name}`"
+                                    >
+                                        <Pencil />
+                                    </Link>
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit warehouse</TooltipContent>
+                        </Tooltip>
                     <Dialog>
-                        <DialogTrigger as-child>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                :aria-label="`Delete ${warehouse.name}`"
-                            >
-                                <Trash2 />
-                            </Button>
-                        </DialogTrigger>
+                        <Tooltip>
+                            <TooltipTrigger as-child>
+                                <DialogTrigger as-child>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        :aria-label="`Delete ${warehouse.name}`"
+                                    >
+                                        <Trash2 />
+                                    </Button>
+                                </DialogTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>Delete warehouse</TooltipContent>
+                        </Tooltip>
                         <DialogContent>
                             <Form
                                 v-bind="destroy.form(warehouse.id)"
@@ -112,7 +129,8 @@ const visitPage = usePaginatedNavigation(
                             </Form>
                         </DialogContent>
                     </Dialog>
-                </div>
+                    </div>
+                </TooltipProvider>
             </TableCell>
         </template>
     </PaginatedTable>

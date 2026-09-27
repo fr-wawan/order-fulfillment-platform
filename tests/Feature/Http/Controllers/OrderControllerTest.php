@@ -1,10 +1,13 @@
 <?php
 
 use App\Actions\Order\CreateOrderAction;
+use App\Enums\Payment\PaymentSessionStatus;
+use App\Enums\Payment\PaymentStatus;
 use App\Enums\Sku\SkuStatus;
 use App\Models\Inventory;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\Sku;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -65,6 +68,12 @@ describe('show', function () {
         $order = app(CreateOrderAction::class)->handle([
             'items' => [['sku_id' => $sku->id, 'quantity' => 2]],
         ]);
+        $payment = Payment::query()->create([
+            'order_id' => $order->id,
+            'amount' => $order->total_amount,
+            'status' => PaymentStatus::RefundPending,
+            'session_status' => PaymentSessionStatus::Ready,
+        ]);
 
         $this->actingAs($user)
             ->get(route('orders.show', $order))
@@ -72,6 +81,8 @@ describe('show', function () {
                 ->component('orders/Show')
                 ->where('order.id', $order->id)
                 ->where('order.total_amount', 5_000)
+                ->where('order.payment.id', $payment->id)
+                ->where('order.payment.status', PaymentStatus::RefundPending->value)
                 ->has('order.items', 1)
                 ->where('order.items.0.sku.id', $sku->id)
                 ->where('order.items.0.unit_price', 2_500));

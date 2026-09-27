@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Exceptions;
+namespace App\Exceptions\Payment;
 
 use Exception;
-use Throwable;
-use Override;
 
 class PaymentInitiationInProgressException extends Exception
 {
