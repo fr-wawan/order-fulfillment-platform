@@ -8,7 +8,7 @@ use App\Models\Order;
 use App\Models\Payment;
 
 /** @return array{payment: Payment, payload: array<string, int|string>} */
-function createRefundWebhookPayment(): array
+function createRefundWebhookPayment(string $refundStatus): array
 {
     $order = Order::query()->create([
         'order_number' => 'ORD-REFUND-'.fake()->unique()->numerify('####'),
@@ -30,8 +30,9 @@ function createRefundWebhookPayment(): array
     return [
         'payment' => $payment,
         'payload' => [
+            'id' => 'refund-'.$payment->id,
             'payment_request_id' => $payment->provider_payment_request_id,
-            'status' => 'SUCCEEDED',
+            'status' => $refundStatus,
             'reference_id' => $payment->refundReferenceId(),
             'amount' => $payment->amount,
             'currency' => 'IDR',
@@ -39,11 +40,33 @@ function createRefundWebhookPayment(): array
     ];
 }
 
-it('marks a refund as refunded after Xendit confirms it', function () {
+it('records the final refund status reported by Xendit', function (
+    string $providerStatus,
+    PaymentStatus $paymentStatus,
+) {
     config(['payment.currency' => 'IDR']);
-    ['payment' => $payment, 'payload' => $payload] = createRefundWebhookPayment();
+    ['payment' => $payment, 'payload' => $payload] = createRefundWebhookPayment(
+        $providerStatus,
+    );
 
     app(ProcessXenditRefundWebhookAction::class)->handle($payload);
 
-    expect($payment->refresh()->status)->toBe(PaymentStatus::Refunded);
+    expect($payment->refresh()->status)->toBe($paymentStatus);
+})->with([
+    'succeeded refund' => ['SUCCEEDED', PaymentStatus::Refunded],
+    'failed refund' => ['FAILED', PaymentStatus::RefundFailed],
+]);
+
+it('accepts a succeeded refund callback while the refund is being submitted', function () {
+    config(['payment.currency' => 'IDR']);
+    ['payment' => $payment, 'payload' => $payload] = createRefundWebhookPayment(
+        'SUCCEEDED',
+    );
+    $payment->update(['status' => PaymentStatus::RefundSubmitting]);
+
+    app(ProcessXenditRefundWebhookAction::class)->handle($payload);
+
+    expect($payment->refresh())
+        ->status->toBe(PaymentStatus::Refunded)
+        ->provider_refund_id->toBe('refund-'.$payment->id);
 });

@@ -19,7 +19,7 @@ class ProcessXenditPaymentWebhookAction
             ->where('provider_session_id', $data['payment_session_id'])
             ->first();
 
-        if (!$payment) {
+        if (! $payment) {
             return;
         }
         DB::transaction(function () use ($data, $payment) {
@@ -31,7 +31,7 @@ class ProcessXenditPaymentWebhookAction
                 ->lockForUpdate()
                 ->findOrFail($payment->id);
 
-            if ($payment->hasBeenSettled()) {
+            if (! $payment->isPending()) {
                 return;
             }
 
@@ -51,7 +51,7 @@ class ProcessXenditPaymentWebhookAction
                 return;
             }
 
-            $payment->status = PaymentStatus::RefundPending;
+            $payment->status = PaymentStatus::RefundQueued;
             $payment->save();
 
             RefundXenditPaymentJob::dispatch($payment->id)

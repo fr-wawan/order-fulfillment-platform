@@ -16,7 +16,7 @@ class ProcessXenditRefundWebhookAction
             ->where('provider_payment_request_id', $data['payment_request_id'])
             ->first();
 
-        if (!$payment) {
+        if (! $payment) {
             return;
         }
 
@@ -25,9 +25,14 @@ class ProcessXenditRefundWebhookAction
                 ->lockForUpdate()
                 ->findOrFail($payment->id);
 
-            if ($payment->status === PaymentStatus::Refunded) return;
+            if ($payment->hasFinalRefundStatus()) {
+                return;
+            }
 
-            if ($payment->status !== PaymentStatus::RefundPending) {
+            if (! in_array($payment->status, [
+                PaymentStatus::RefundSubmitting,
+                PaymentStatus::RefundPending,
+            ], true)) {
                 throw new UnexpectedPaymentStatusException(
                     $payment->status,
                 );
@@ -35,17 +40,19 @@ class ProcessXenditRefundWebhookAction
 
             $this->validateRefund($payment, $data);
 
-            $payment->status = PaymentStatus::RefundPending;
-            $payment->save();
+            $payment->update([
+                'status' => match ($data['status']) {
+                    'SUCCEEDED' => PaymentStatus::Refunded,
+                    'FAILED' => PaymentStatus::RefundFailed,
+                    default => throw new UnexpectedPaymentStatusException($data['status']),
+                },
+                'provider_refund_id' => $data['id'],
+            ]);
         });
     }
 
-    private function validateRefund(Payment $payment, array $data)
+    private function validateRefund(Payment $payment, array $data): void
     {
-        if ($data['status'] !== 'SUCCEEDED') {
-            throw new UnexpectedPaymentStatusException($data['status']);
-        }
-
         if ($data['reference_id'] !== $payment->refundReferenceId()) {
             throw new PaymentMismatchException('reference_id');
         }

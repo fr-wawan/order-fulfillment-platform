@@ -16,10 +16,12 @@ class InitiatePaymentAction
     {
         $payment = $this->createPaymentAction->handle($order);
 
-        if ($payment->session_status === PaymentSessionStatus::Ready) return $payment;
+        if ($payment->session_status === PaymentSessionStatus::Ready) {
+            return $payment;
+        }
 
-        if (!$payment->wasRecentlyCreated) {
-            throw new PaymentInitiationInProgressException();
+        if (! $payment->wasRecentlyCreated) {
+            throw new PaymentInitiationInProgressException;
         }
 
         $session = $this->xenditPaymentService->createSession([

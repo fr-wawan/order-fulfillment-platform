@@ -6,7 +6,6 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SkuController;
 use App\Http\Controllers\WarehouseController;
-use App\Http\Controllers\XenditPaymentWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Welcome')->name('home');
@@ -29,7 +28,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->only('store', 'update');
     });
 });
-
-Route::post('/webhooks/xendit/payment', XenditPaymentWebhookController::class)->name('webhooks.xendit.payment');
 
 require __DIR__ . '/settings.php';

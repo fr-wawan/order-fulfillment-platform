@@ -9,7 +9,6 @@ use App\Exceptions\OrderNotPayableException;
 use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class CreatePaymentAction
 {
@@ -21,7 +20,7 @@ class CreatePaymentAction
                 ->findOrFail($order->id);
 
             if ($order->status !== OrderStatus::Pending || $order->expires_at <= now()) {
-                throw new OrderNotPayableException();
+                throw new OrderNotPayableException;
             }
 
             $payment = $order->payment()->firstOrCreate([], [
@@ -36,7 +35,7 @@ class CreatePaymentAction
 
             if ($payment->wasRecentlyCreated && $order->expires_at <= $minimumExpiresAt) {
                 $order->update([
-                    'expires_at' => $minimumExpiresAt
+                    'expires_at' => $minimumExpiresAt,
                 ]);
             }
 

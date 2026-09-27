@@ -3,8 +3,6 @@
 namespace App\Exceptions;
 
 use Exception;
-use Throwable;
-use Override;
 
 class OrderNotPayableException extends Exception
 {

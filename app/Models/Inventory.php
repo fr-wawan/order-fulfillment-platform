@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Database\Factories\InventoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Guarded;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,13 +16,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $warehouse_id
  * @property int $sku_id
  * @property int $quantity
- * @property \Carbon\CarbonImmutable|null $created_at
- * @property \Carbon\CarbonImmutable|null $updated_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  * @property int $reserved_quantity
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InventoryReservation> $reservations
+ * @property-read Collection<int, InventoryReservation> $reservations
  * @property-read int|null $reservations_count
- * @property-read \App\Models\Sku $sku
- * @property-read \App\Models\Warehouse $warehouse
+ * @property-read Sku $sku
+ * @property-read Warehouse $warehouse
+ *
  * @method static \Database\Factories\InventoryFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventory newQuery()
@@ -32,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventory whereSkuId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventory whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventory whereWarehouseId($value)
+ *
  * @mixin \Eloquent
  */
 #[Guarded(['id'])]

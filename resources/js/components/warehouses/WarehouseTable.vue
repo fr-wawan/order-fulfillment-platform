@@ -22,7 +22,6 @@ import { TableCell, TableHead } from '@/components/ui/table';
 import {
     Tooltip,
     TooltipContent,
-    TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { usePaginatedNavigation } from '@/composables/usePaginatedNavigation';
@@ -63,21 +62,20 @@ const visitPage = usePaginatedNavigation(
                 />
             </TableCell>
             <TableCell class="px-4">
-                <TooltipProvider :delay-duration="0">
-                    <div class="flex justify-end gap-1">
-                        <Tooltip>
-                            <TooltipTrigger as-child>
-                                <Button variant="ghost" size="icon" as-child>
-                                    <Link
-                                        :href="edit(warehouse.id)"
-                                        :aria-label="`Edit ${warehouse.name}`"
-                                    >
-                                        <Pencil />
-                                    </Link>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Edit warehouse</TooltipContent>
-                        </Tooltip>
+                <div class="flex justify-end gap-1">
+                    <Tooltip>
+                        <TooltipTrigger as-child>
+                            <Button variant="ghost" size="icon" as-child>
+                                <Link
+                                    :href="edit(warehouse.id)"
+                                    :aria-label="`Edit ${warehouse.name}`"
+                                >
+                                    <Pencil />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit warehouse</TooltipContent>
+                    </Tooltip>
                     <Dialog>
                         <Tooltip>
                             <TooltipTrigger as-child>
@@ -129,8 +127,7 @@ const visitPage = usePaginatedNavigation(
                             </Form>
                         </DialogContent>
                     </Dialog>
-                    </div>
-                </TooltipProvider>
+                </div>
             </TableCell>
         </template>
     </PaginatedTable>

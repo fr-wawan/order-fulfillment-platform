@@ -3,7 +3,6 @@
 namespace App\Jobs\Order;
 
 use App\Actions\Order\ExpireOrderAction;
-use App\Models\Order;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 

@@ -11,10 +11,14 @@ class XenditPaymentWebhookController extends Controller
 {
     public function __invoke(Request $request, ProcessXenditPaymentWebhookAction $paymentAction, ProcessXenditRefundWebhookAction $refundAction): Response
     {
-        if (! hash_equals(
-            (string) config('services.xendit.webhook_token'),
-            (string) $request->header('x-callback-token')
-        )) {
+        $webhookToken = config('services.xendit.webhook_token');
+        $callbackToken = $request->header('x-callback-token');
+
+        if (
+            empty($webhookToken) ||
+            empty($callbackToken) ||
+            ! hash_equals($webhookToken, $callbackToken)
+        ) {
             abort(401);
         }
 
@@ -22,7 +26,7 @@ class XenditPaymentWebhookController extends Controller
             'payment_session.completed' => $paymentAction->handle(
                 $request->input('data')
             ),
-            'refund.succeeded' => $refundAction->handle(
+            'refund.succeeded', 'refund.failed' => $refundAction->handle(
                 $request->input('data')
             ),
             default => null

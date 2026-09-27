@@ -16,7 +16,6 @@ import {
 import {
     Tooltip,
     TooltipContent,
-    TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import type { Order } from '@/types';
@@ -28,21 +27,19 @@ defineProps<{
 
 <template>
     <Dialog>
-        <TooltipProvider :delay-duration="0">
-            <Tooltip>
-                <TooltipTrigger as-child>
-                    <DialogTrigger as-child>
-                        <slot>
-                            <Button variant="destructive">
-                                <Ban />
-                                Cancel order
-                            </Button>
-                        </slot>
-                    </DialogTrigger>
-                </TooltipTrigger>
-                <TooltipContent>Cancel order</TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
+        <Tooltip>
+            <TooltipTrigger as-child>
+                <DialogTrigger as-child>
+                    <slot>
+                        <Button variant="destructive">
+                            <Ban />
+                            Cancel order
+                        </Button>
+                    </slot>
+                </DialogTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Cancel order</TooltipContent>
+        </Tooltip>
         <DialogContent>
             <Form
                 v-bind="cancel.form(order.id)"

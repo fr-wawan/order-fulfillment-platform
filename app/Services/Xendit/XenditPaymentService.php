@@ -2,9 +2,9 @@
 
 namespace App\Services\Xendit;
 
-use Illuminate\Support\Facades\Http;
 use App\Models\Payment;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Http;
 
 class XenditPaymentService
 {
@@ -24,7 +24,7 @@ class XenditPaymentService
                 'payment_request_id' => $payment->provider_payment_request_id,
                 'currency' => config('payment.currency'),
                 'amount' => $payment->amount,
-                'reason' => 'CANCELLATION'
+                'reason' => 'CANCELLATION',
             ])
             ->throw()
             ->json();

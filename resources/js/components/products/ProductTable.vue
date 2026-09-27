@@ -9,7 +9,6 @@ import { TableCell, TableHead } from '@/components/ui/table';
 import {
     Tooltip,
     TooltipContent,
-    TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { usePaginatedNavigation } from '@/composables/usePaginatedNavigation';
@@ -58,23 +57,21 @@ const visitPage = usePaginatedNavigation(
                 />
             </TableCell>
             <TableCell class="px-4 py-4">
-                <TooltipProvider :delay-duration="0">
-                    <div class="flex justify-end gap-1">
-                        <Tooltip>
-                            <TooltipTrigger as-child>
-                                <Button variant="ghost" size="icon" as-child>
-                                    <Link
-                                        :href="edit(product.id)"
-                                        :aria-label="`Edit ${product.name}`"
-                                    >
-                                        <Pencil />
-                                    </Link>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Edit product</TooltipContent>
-                        </Tooltip>
-                    </div>
-                </TooltipProvider>
+                <div class="flex justify-end gap-1">
+                    <Tooltip>
+                        <TooltipTrigger as-child>
+                            <Button variant="ghost" size="icon" as-child>
+                                <Link
+                                    :href="edit(product.id)"
+                                    :aria-label="`Edit ${product.name}`"
+                                >
+                                    <Pencil />
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit product</TooltipContent>
+                    </Tooltip>
+                </div>
             </TableCell>
         </template>
     </PaginatedTable>

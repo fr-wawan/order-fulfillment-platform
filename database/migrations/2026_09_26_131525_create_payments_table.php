@@ -33,6 +33,9 @@ return new class extends Migration
             $table->string('provider_payment_request_id')
                 ->nullable()
                 ->unique();
+            $table->string('provider_refund_id')
+                ->nullable()
+                ->unique();
             $table->timestamps();
         });
     }

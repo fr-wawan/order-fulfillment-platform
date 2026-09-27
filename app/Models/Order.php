@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Enums\Order\OrderStatus;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -15,12 +17,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string $order_number
  * @property OrderStatus $status
  * @property int $total_amount
- * @property \Carbon\CarbonImmutable $expires_at
- * @property \Carbon\CarbonImmutable|null $created_at
- * @property \Carbon\CarbonImmutable|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\OrderItem> $items
+ * @property CarbonImmutable $expires_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
+ * @property-read Collection<int, OrderItem> $items
  * @property-read int|null $items_count
- * @property-read \App\Models\Payment|null $payment
+ * @property-read Payment|null $payment
+ *
  * @method static Builder<static>|Order dueForExpiration()
  * @method static Builder<static>|Order newModelQuery()
  * @method static Builder<static>|Order newQuery()
@@ -32,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static Builder<static>|Order whereStatus($value)
  * @method static Builder<static>|Order whereTotalAmount($value)
  * @method static Builder<static>|Order whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 #[Guarded(['id'])]

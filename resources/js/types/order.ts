@@ -40,6 +40,13 @@ export type OrderItemSnapshot = {
 export type OrderDetail = Omit<Order, 'items_count'> & {
     items: OrderItemSnapshot[];
     payment: {
-        status: 'pending' | 'succeeded' | 'refund_pending' | 'refunded';
+        status:
+            | 'pending'
+            | 'succeeded'
+            | 'refund_queued'
+            | 'refund_submitting'
+            | 'refund_pending'
+            | 'refund_failed'
+            | 'refunded';
     } | null;
 };

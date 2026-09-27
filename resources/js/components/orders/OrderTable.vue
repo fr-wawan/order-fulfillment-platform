@@ -9,11 +9,11 @@ import { TableCell, TableHead } from '@/components/ui/table';
 import {
     Tooltip,
     TooltipContent,
-    TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { usePaginatedNavigation } from '@/composables/usePaginatedNavigation';
 import { formatDateTime, formatMoney } from '@/lib/formatters';
+import { orderStatusTone } from '@/lib/order-status';
 import { index, show } from '@/routes/orders';
 import type { Order, PaginatedData } from '@/types';
 
@@ -52,7 +52,7 @@ const visitPage = usePaginatedNavigation(
             <TableCell class="px-4 py-4">
                 <StatusBadge
                     :status="order.status"
-                    :tone="order.status === 'pending' ? 'warning' : 'danger'"
+                    :tone="orderStatusTone[order.status]"
                 />
             </TableCell>
             <TableCell class="px-4 py-4">
@@ -65,35 +65,33 @@ const visitPage = usePaginatedNavigation(
                 {{ formatDateTime(order.created_at) }}
             </TableCell>
             <TableCell class="px-4 py-4 text-right">
-                <TooltipProvider :delay-duration="0">
-                    <div class="flex justify-end gap-1">
-                        <Tooltip>
-                            <TooltipTrigger as-child>
-                                <Button variant="ghost" size="icon" as-child>
-                                    <Link
-                                        :href="show(order.id)"
-                                        :aria-label="`View ${order.order_number}`"
-                                    >
-                                        <Eye />
-                                    </Link>
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>View order</TooltipContent>
-                        </Tooltip>
-                        <CancelOrderDialog
-                            v-if="order.status === 'pending'"
-                            :order="order"
-                        >
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                :aria-label="`Cancel ${order.order_number}`"
-                            >
-                                <Ban />
+                <div class="flex justify-end gap-1">
+                    <Tooltip>
+                        <TooltipTrigger as-child>
+                            <Button variant="ghost" size="icon" as-child>
+                                <Link
+                                    :href="show(order.id)"
+                                    :aria-label="`View ${order.order_number}`"
+                                >
+                                    <Eye />
+                                </Link>
                             </Button>
-                        </CancelOrderDialog>
-                    </div>
-                </TooltipProvider>
+                        </TooltipTrigger>
+                        <TooltipContent>View order</TooltipContent>
+                    </Tooltip>
+                    <CancelOrderDialog
+                        v-if="order.status === 'pending'"
+                        :order="order"
+                    >
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            :aria-label="`Cancel ${order.order_number}`"
+                        >
+                            <Ban />
+                        </Button>
+                    </CancelOrderDialog>
+                </div>
             </TableCell>
         </template>
     </PaginatedTable>

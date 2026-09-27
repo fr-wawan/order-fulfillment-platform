@@ -17,6 +17,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDateTime, formatMoney } from '@/lib/formatters';
+import { orderStatusTone } from '@/lib/order-status';
 import { index } from '@/routes/orders';
 import type { OrderDetail } from '@/types';
 
@@ -35,10 +36,16 @@ const paymentStatus = computed(() => {
     return {
         pending: { label: 'Pending', tone: 'warning' as const },
         succeeded: { label: 'Succeeded', tone: 'success' as const },
+        refund_queued: { label: 'Refund queued', tone: 'info' as const },
+        refund_submitting: {
+            label: 'Submitting refund',
+            tone: 'warning' as const,
+        },
         refund_pending: {
             label: 'Refund in progress',
             tone: 'warning' as const,
         },
+        refund_failed: { label: 'Refund failed', tone: 'danger' as const },
         refunded: { label: 'Refunded', tone: 'info' as const },
     }[props.order.payment.status];
 });
@@ -87,13 +94,7 @@ defineOptions({
                 <CardContent>
                     <StatusBadge
                         :status="order.status"
-                        :tone="
-                            order.status === 'pending'
-                                ? 'warning'
-                                : order.status === 'paid'
-                                  ? 'success'
-                                  : 'danger'
-                        "
+                        :tone="orderStatusTone[order.status]"
                     />
                 </CardContent>
             </Card>

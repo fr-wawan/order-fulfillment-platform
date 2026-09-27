@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\Order\OrderStatus;
 use App\Jobs\Order\ExpireOrderJob;
 use App\Models\Order;
 use Illuminate\Console\Attributes\Description;

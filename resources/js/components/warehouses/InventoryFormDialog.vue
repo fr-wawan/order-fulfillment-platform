@@ -19,7 +19,6 @@ import { Label } from "@/components/ui/label";
 import {
     Tooltip,
     TooltipContent,
-    TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
@@ -55,14 +54,12 @@ function isSkuUnavailable(skuId: number): boolean {
 <template>
     <Dialog v-model:open="open">
         <template v-if="triggerTooltip">
-            <TooltipProvider :delay-duration="0">
-                <Tooltip>
-                    <TooltipTrigger as-child>
-                        <DialogTrigger as-child><slot /></DialogTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>{{ triggerTooltip }}</TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger as-child>
+                    <DialogTrigger as-child><slot /></DialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent>{{ triggerTooltip }}</TooltipContent>
+            </Tooltip>
         </template>
         <DialogTrigger v-else as-child><slot /></DialogTrigger>
         <DialogContent>

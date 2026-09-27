@@ -95,7 +95,7 @@ it('queues a refund without changing an expired or cancelled order', function (O
     );
 
     expect($order->refresh()->status)->toBe($status);
-    expect($payment->refresh())->status->toBe(PaymentStatus::RefundPending);
+    expect($payment->refresh())->status->toBe(PaymentStatus::RefundQueued);
     Queue::assertPushed(
         RefundXenditPaymentJob::class,
         fn (RefundXenditPaymentJob $job) => $job->paymentId === $payment->id,
@@ -104,6 +104,20 @@ it('queues a refund without changing an expired or cancelled order', function (O
     'cancelled order' => OrderStatus::Cancelled,
     'expired order' => OrderStatus::Expired,
 ]);
+
+it('does not queue another refund for a duplicate late payment callback', function () {
+    travelTo('2026-09-27 12:00:00');
+    config(['payment.currency' => 'IDR']);
+    Queue::fake([RefundXenditPaymentJob::class]);
+    ['payment' => $payment] = createPaymentForSettlement(OrderStatus::Cancelled);
+    $payload = completedPaymentSessionPayload($payment);
+
+    app(ProcessXenditPaymentWebhookAction::class)->handle($payload);
+    app(ProcessXenditPaymentWebhookAction::class)->handle($payload);
+
+    expect($payment->refresh()->status)->toBe(PaymentStatus::RefundQueued);
+    Queue::assertPushedTimes(RefundXenditPaymentJob::class, 1);
+});
 
 it('rejects a completed session whose amount does not match the local payment', function () {
     config(['payment.currency' => 'IDR']);
