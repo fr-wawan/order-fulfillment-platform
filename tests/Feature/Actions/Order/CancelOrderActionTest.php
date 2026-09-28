@@ -53,16 +53,19 @@ it('keeps cancellation idempotent when cancelling the same order twice', functio
     expect($reservation->refresh()->status)->toBe(InventoryReservationStatus::Released);
 });
 
-it('leaves a paid order unchanged', function () {
+it('leaves a paid or fulfilled order unchanged', function (OrderStatus $status) {
     $order = Order::query()->create([
-        'order_number' => 'ORD-PAID-CANCEL',
-        'status' => OrderStatus::Paid,
+        'order_number' => 'ORD-NON-CANCELLABLE',
+        'status' => $status,
         'total_amount' => 1_250,
         'expires_at' => now()->addMinutes(15),
     ]);
 
     $cancelledOrder = app(CancelOrderAction::class)->handle($order);
 
-    expect($cancelledOrder->status)->toBe(OrderStatus::Paid);
-    expect($order->refresh()->status)->toBe(OrderStatus::Paid);
-});
+    expect($cancelledOrder->status)->toBe($status);
+    expect($order->refresh()->status)->toBe($status);
+})->with([
+    'paid order' => OrderStatus::Paid,
+    'fulfilled order' => OrderStatus::Fulfilled,
+]);

@@ -8,4 +8,5 @@ enum OrderStatus: string
     case Cancelled = 'cancelled';
     case Expired = 'expired';
     case Paid = 'paid';
+    case Fulfilled = 'fulfilled';
 }

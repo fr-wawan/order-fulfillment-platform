@@ -4,6 +4,7 @@ import { ArrowLeft } from '@lucide/vue';
 import { computed } from 'vue';
 import Heading from '@/components/Heading.vue';
 import CancelOrderDialog from '@/components/orders/CancelOrderDialog.vue';
+import FulfillOrderDialog from '@/components/orders/FulfillOrderDialog.vue';
 import PayOrderButton from '@/components/orders/PayOrderButton.vue';
 import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
@@ -75,6 +76,10 @@ defineOptions({
                 />
                 <CancelOrderDialog
                     v-if="order.status === 'pending'"
+                    :order="order"
+                />
+                <FulfillOrderDialog
+                    v-if="order.status === 'paid'"
                     :order="order"
                 />
                 <Button variant="outline" as-child>

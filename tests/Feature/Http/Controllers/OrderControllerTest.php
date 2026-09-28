@@ -1,6 +1,8 @@
 <?php
 
 use App\Actions\Order\CreateOrderAction;
+use App\Enums\InventoryReservation\InventoryReservationStatus;
+use App\Enums\Order\OrderStatus;
 use App\Enums\Payment\PaymentSessionStatus;
 use App\Enums\Payment\PaymentStatus;
 use App\Enums\Sku\SkuStatus;
@@ -86,6 +88,58 @@ describe('show', function () {
                 ->has('order.items', 1)
                 ->where('order.items.0.sku.id', $sku->id)
                 ->where('order.items.0.unit_price', 2_500));
+    });
+});
+
+describe('fulfill', function () {
+    it('redirects guests to login', function () {
+        $order = Order::query()->create([
+            'order_number' => 'ORD-FULFILL-GUEST',
+            'status' => OrderStatus::Paid,
+            'total_amount' => 1_250,
+            'expires_at' => now()->addMinutes(15),
+        ]);
+
+        $this->post(route('orders.fulfill', $order))
+            ->assertRedirect(route('login'));
+    });
+
+    it('fulfills a paid order', function () {
+        $user = User::factory()->create();
+        $sku = Sku::factory()->create(['price' => 1_250]);
+        $inventory = Inventory::factory()->for($sku)->create([
+            'quantity' => 3,
+            'reserved_quantity' => 2,
+        ]);
+        $order = Order::query()->create([
+            'order_number' => 'ORD-FULFILL-REQUEST',
+            'status' => OrderStatus::Paid,
+            'total_amount' => 2_500,
+            'expires_at' => now()->addMinutes(15),
+        ]);
+        $orderItem = OrderItem::query()->create([
+            'order_id' => $order->id,
+            'sku_id' => $sku->id,
+            'quantity' => 2,
+            'unit_price' => 1_250,
+        ]);
+        $reservation = $orderItem->reservations()->create([
+            'inventory_id' => $inventory->id,
+            'quantity' => 2,
+            'status' => InventoryReservationStatus::Reserved,
+        ]);
+
+        $this->actingAs($user)
+            ->from(route('orders.show', $order))
+            ->post(route('orders.fulfill', $order))
+            ->assertRedirect(route('orders.show', $order));
+
+        expect($order->refresh()->status)->toBe(OrderStatus::Fulfilled);
+        expect($inventory->refresh())
+            ->quantity->toBe(1)
+            ->reserved_quantity->toBe(0);
+        expect($reservation->refresh()->status)
+            ->toBe(InventoryReservationStatus::Fulfilled);
     });
 });
 

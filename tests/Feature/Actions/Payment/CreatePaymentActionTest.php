@@ -4,7 +4,7 @@ use App\Actions\Payment\CreatePaymentAction;
 use App\Enums\Order\OrderStatus;
 use App\Enums\Payment\PaymentSessionStatus;
 use App\Enums\Payment\PaymentStatus;
-use App\Exceptions\OrderNotPayableException;
+use App\Exceptions\Order\OrderNotPayableException;
 use App\Models\Order;
 use App\Models\Payment;
 

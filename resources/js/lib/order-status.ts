@@ -5,6 +5,7 @@ export const orderStatusTone = {
     cancelled: 'danger',
     expired: 'danger',
     paid: 'success',
+    fulfilled: 'success',
 } as const satisfies Record<
     Order['status'],
     'success' | 'warning' | 'danger'

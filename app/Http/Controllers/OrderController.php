@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Order\CancelOrderAction;
 use App\Actions\Order\CreateOrderAction;
+use App\Actions\Order\FulfillOrderAction;
 use App\Http\Requests\Order\StoreOrderRequest;
 use App\Models\Order;
 use App\Models\Sku;
@@ -63,6 +64,15 @@ class OrderController extends Controller
         $action->handle($order);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Order cancelled successfully.']);
+
+        return back();
+    }
+
+    public function fulfill(Order $order, FulfillOrderAction $action): RedirectResponse
+    {
+        $action->handle($order);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Order Fulfilled successfully.']);
 
         return back();
     }
