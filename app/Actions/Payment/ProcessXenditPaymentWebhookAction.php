@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class ProcessXenditPaymentWebhookAction
 {
+    public function  __construct(private SettleVerifiedXenditPaymentAction $settleVerifiedXenditPaymentAction) {}
+
     public function handle(array $data): void
     {
         $payment = Payment::query()
@@ -22,6 +24,7 @@ class ProcessXenditPaymentWebhookAction
         if (! $payment) {
             return;
         }
+
         DB::transaction(function () use ($data, $payment) {
             $order = Order::query()
                 ->lockForUpdate()
@@ -37,25 +40,7 @@ class ProcessXenditPaymentWebhookAction
 
             $this->validatePayment($payment, $data);
 
-            $payment->provider_payment_id = $data['payment_id'];
-            $payment->provider_payment_request_id = $data['payment_request_id'];
-            $payment->paid_at = now();
-
-            if ($order->status === OrderStatus::Pending && $order->expires_at->isFuture()) {
-                $payment->status = PaymentStatus::Succeeded;
-                $order->status = OrderStatus::Paid;
-
-                $payment->save();
-                $order->save();
-
-                return;
-            }
-
-            $payment->status = PaymentStatus::RefundQueued;
-            $payment->save();
-
-            RefundXenditPaymentJob::dispatch($payment->id)
-                ->afterCommit();
+            $this->settleVerifiedXenditPaymentAction->handle($order, $payment, $data);
         });
     }
 

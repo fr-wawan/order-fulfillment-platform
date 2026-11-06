@@ -8,6 +8,15 @@ use Illuminate\Support\Facades\Http;
 
 class XenditPaymentService
 {
+    public function getSession(string $providerSessionId): array
+    {
+        return $this->client()
+            ->connectTimeout(3)
+            ->timeout(10)
+            ->get("/sessions/${providerSessionId}")
+            ->throw()
+            ->json();
+    }
     public function createSession(array $payload): array
     {
         return $this->client()

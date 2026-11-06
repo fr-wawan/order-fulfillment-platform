@@ -19,11 +19,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property int $reserved_quantity
- * @property-read Collection<int, InventoryReservation> $reservations
+ * @property-read Collection<int, \App\Models\InventoryReservation> $reservations
  * @property-read int|null $reservations_count
- * @property-read Sku $sku
- * @property-read Warehouse $warehouse
- *
+ * @property-read \App\Models\Sku $sku
+ * @property-read \App\Models\Warehouse $warehouse
  * @method static \Database\Factories\InventoryFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventory newQuery()
@@ -35,7 +34,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventory whereSkuId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventory whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Inventory whereWarehouseId($value)
- *
  * @mixin \Eloquent
  */
 #[Guarded(['id'])]

@@ -17,11 +17,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $unit_price
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
- * @property-read Order $order
- * @property-read Collection<int, InventoryReservation> $reservations
+ * @property-read \App\Models\Order $order
+ * @property-read Collection<int, \App\Models\InventoryReservation> $reservations
  * @property-read int|null $reservations_count
- * @property-read Sku $sku
- *
+ * @property-read \App\Models\Sku $sku
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem query()
@@ -32,7 +31,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereSkuId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereUnitPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderItem whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 #[Guarded(['id'])]

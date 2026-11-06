@@ -20,10 +20,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property CarbonImmutable $expires_at
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
- * @property-read Collection<int, OrderItem> $items
+ * @property-read Collection<int, \App\Models\OrderItem> $items
  * @property-read int|null $items_count
- * @property-read Payment|null $payment
- *
+ * @property-read \App\Models\Payment|null $payment
  * @method static Builder<static>|Order dueForExpiration()
  * @method static Builder<static>|Order newModelQuery()
  * @method static Builder<static>|Order newQuery()
@@ -35,7 +34,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static Builder<static>|Order whereStatus($value)
  * @method static Builder<static>|Order whereTotalAmount($value)
  * @method static Builder<static>|Order whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 #[Guarded(['id'])]

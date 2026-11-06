@@ -23,10 +23,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property SkuStatus $status
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
- * @property-read Collection<int, Inventory> $inventories
+ * @property-read Collection<int, \App\Models\Inventory> $inventories
  * @property-read int|null $inventories_count
- * @property-read Product $product
- *
+ * @property-read \App\Models\Product $product
  * @method static \Database\Factories\SkuFactory factory($count = null, $state = [])
  * @method static Builder<static>|Sku newModelQuery()
  * @method static Builder<static>|Sku newQuery()
@@ -40,7 +39,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static Builder<static>|Sku whereStatus($value)
  * @method static Builder<static>|Sku whereUpdatedAt($value)
  * @method static Builder<static>|Sku withAvailableQuantity()
- *
  * @mixin \Eloquent
  */
 #[Guarded(['id'])]

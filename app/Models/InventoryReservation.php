@@ -16,9 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property InventoryReservationStatus $status
- * @property-read Inventory $inventory
- * @property-read OrderItem $orderItem
- *
+ * @property-read \App\Models\Inventory $inventory
+ * @property-read \App\Models\OrderItem $orderItem
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryReservation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryReservation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryReservation query()
@@ -29,7 +28,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryReservation whereQuantity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryReservation whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InventoryReservation whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 #[Guarded(['id'])]
